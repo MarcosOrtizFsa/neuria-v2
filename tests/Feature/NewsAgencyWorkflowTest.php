@@ -11,6 +11,7 @@ use App\Models\NewsRequest;
 use App\Models\Organization;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\ContentAvailabilityService;
 use App\Services\NewsWorkflowService;
 use App\Services\OpenAIContentGenerationService;
 use App\Services\OpenAIResearchService;
@@ -69,11 +70,11 @@ class NewsAgencyWorkflowTest extends TestCase
         $generationRun = $request->jobRuns->firstWhere('operation', 'GENERACION');
         $generationJob = new GenerateDestinationContent($request->id, $request->researches->first()->id, $request->destinations->first()->id, $generationRun->id);
 
-        $generationJob->handle(app(OpenAIContentGenerationService::class), app(NewsWorkflowService::class));
+        $generationJob->handle(app(OpenAIContentGenerationService::class), app(NewsWorkflowService::class), app(ContentAvailabilityService::class));
 
         $request->refresh();
         $this->assertSame('COMPLETADA', $request->status);
-        $this->assertDatabaseHas('generated_drafts', ['news_request_destination_id' => $request->destinations()->first()->id, 'status' => 'PENDIENTE_REVISION']);
+        $this->assertDatabaseHas('generated_drafts', ['news_request_destination_id' => $request->destinations()->first()->id, 'status' => 'DISPONIBLE']);
         $this->assertSame(2, $request->usages()->count());
         Http::assertSentCount(2);
         Http::assertSent(fn (Request $sent): bool => $sent->url() === 'https://api.openai.com/v1/responses' && $sent->hasHeader('Authorization') && ! str_contains($sent->body(), 'nria_'));

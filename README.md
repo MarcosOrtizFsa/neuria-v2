@@ -127,7 +127,17 @@ La Fase 4 usa la cola de base de datos. Además del servidor web y Vite, debe ma
 php artisan queue:work --tries=3 --timeout=330 --backoff=10
 ```
 
-Desde **Agencia de Noticias → Nueva solicitud**, seleccione al menos un canal activo cuyo medio tenga una línea editorial. La investigación se ejecuta una sola vez y genera un borrador por destino. Todos los borradores quedan en `PENDIENTE_REVISION`; este módulo no publica ni entrega contenido automáticamente.
+Desde **Agencia de Noticias → Nueva solicitud**, seleccione al menos un canal activo cuyo medio tenga una línea editorial. La investigación se ejecuta una sola vez y genera un contenido por destino. Cuando supera la validación técnica queda automáticamente en `DISPONIBLE`; NEURIA no lo considera revisado ni aprobado editorialmente y no lo publica ni entrega automáticamente.
+
+## Disponibilidad de contenidos
+
+El módulo **Contenidos** permite consultar las noticias generadas, sus fuentes, destino, investigación y versión editorial. Los estados técnicos son `GENERANDO`, `DISPONIBLE`, `ERROR`, `SUSPENDIDO` y `RETIRADO`.
+
+Los usuarios autorizados pueden suspender, reactivar o retirar contenidos. Un contenido retirado no puede ser reactivado por un reintento del trabajo original. Cada cambio conserva historial y auditoría.
+
+`ContentDistributionQuery` prepara el acceso de la futura API: parte de una credencial autenticada, exige el alcance `content:read`, filtra exclusivamente por el medio de esa credencial y entrega solamente contenidos `DISPONIBLE`. Los endpoints públicos se incorporarán en la Fase 6.
+
+La tabla `service_term_acceptances` reserva la trazabilidad futura de versión de términos, usuario, organización y fecha. La aceptación todavía no bloquea la operación y el texto contractual deberá revisarse jurídicamente.
 
 Variables requeridas en `.env`:
 

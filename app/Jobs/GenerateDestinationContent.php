@@ -9,6 +9,7 @@ use App\Models\GeneratedDraft;
 use App\Models\NewsRequest;
 use App\Models\NewsRequestDestination;
 use App\Models\NewsResearch;
+use App\Services\ContentAvailabilityService;
 use App\Services\NewsWorkflowService;
 use App\Services\OpenAIContentGenerationService;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -32,7 +33,7 @@ class GenerateDestinationContent implements ShouldQueue
         return [10, 30, 90];
     }
 
-    public function handle(OpenAIContentGenerationService $openAI, NewsWorkflowService $workflow): void
+    public function handle(OpenAIContentGenerationService $openAI, NewsWorkflowService $workflow, ContentAvailabilityService $availability): void
     {
         $destination = NewsRequestDestination::with(['newsRequest', 'mediaOutlet.editorialProfile', 'mediaChannel', 'editorialProfileVersion'])->findOrFail($this->destinationId);
         $research = NewsResearch::findOrFail($this->researchId);
@@ -45,9 +46,9 @@ class GenerateDestinationContent implements ShouldQueue
         $jobRun->update(['status' => 'PROCESANDO', 'attempts' => $this->attempts(), 'started_at' => now(), 'error_message' => null]);
         $result = $openAI->generate($research, $destination);
 
-        DB::transaction(function () use ($destination, $research, $jobRun, $result, $workflow): void {
+        DB::transaction(function () use ($destination, $research, $jobRun, $result, $workflow, $availability): void {
             $data = $result['data'];
-            GeneratedDraft::firstOrCreate(['news_request_destination_id' => $destination->id], [
+            $draft = GeneratedDraft::firstOrCreate(['news_request_destination_id' => $destination->id], [
                 'news_research_id' => $research->id,
                 'editorial_profile_version_id' => $destination->editorial_profile_version_id,
                 'title' => $data['title'],
@@ -57,12 +58,14 @@ class GenerateDestinationContent implements ShouldQueue
                 'tags' => $data['tags'],
                 'source_references' => $data['source_references'],
                 'editorial_warnings' => $data['editorial_warnings'],
-                'status' => 'PENDIENTE_REVISION',
+                'status' => 'GENERANDO',
                 'model' => $result['model'],
+                'generated_at' => now(),
             ]);
-            $destination->update(['status' => 'COMPLETADA']);
-            $jobRun->update(['status' => 'COMPLETADA', 'completed_at' => now()]);
-            AuditLog::create(['user_id' => $destination->newsRequest->requested_by, 'action' => 'BORRADOR_GENERADO', 'module' => 'AGENCIA_NOTICIAS', 'auditable_type' => $destination->getMorphClass(), 'auditable_id' => $destination->id, 'result' => 'SUCCESS', 'metadata' => ['draft_status' => 'PENDIENTE_REVISION']]);
+            $isAvailable = $availability->validateAndMakeAvailable($draft);
+            $destination->update(['status' => $isAvailable ? 'COMPLETADA' : 'ERROR', 'error_message' => $isAvailable ? null : $draft->fresh()->technical_error]);
+            $jobRun->update(['status' => $isAvailable ? 'COMPLETADA' : 'ERROR', 'error_message' => $isAvailable ? null : $draft->fresh()->technical_error, 'completed_at' => now()]);
+            AuditLog::create(['user_id' => $destination->newsRequest->requested_by, 'action' => $isAvailable ? 'CONTENIDO_DISPONIBLE' : 'VALIDACION_CONTENIDO_ERROR', 'module' => 'CONTENIDOS', 'auditable_type' => $draft->getMorphClass(), 'auditable_id' => $draft->id, 'result' => $isAvailable ? 'SUCCESS' : 'ERROR', 'metadata' => ['status' => $draft->fresh()->status]]);
             if ($result['id']) {
                 AiUsage::updateOrCreate(['openai_response_id' => $result['id']], [
                     'news_request_id' => $destination->news_request_id,

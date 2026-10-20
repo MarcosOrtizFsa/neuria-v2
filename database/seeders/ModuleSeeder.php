@@ -25,6 +25,7 @@ class ModuleSeeder extends Seeder
             'MEDIOS' => ['GESTIONAR_CANALES', 'GESTIONAR_CREDENCIALES'],
             'LINEA_EDITORIAL' => ['VER_VERSIONES', 'RESTAURAR_VERSION'],
             'AGENCIA_NOTICIAS' => ['CANCELAR', 'INVESTIGAR', 'GENERAR', 'REINTENTAR', 'VER_RESULTADOS', 'VER_COSTOS'],
+            'CONTENIDOS' => ['SUSPENDER', 'REACTIVAR', 'RETIRAR', 'VER_HISTORIAL'],
         ];
         foreach ($extra as $moduleCode => $operations) {
             $module = Module::where('code', $moduleCode)->firstOrFail();

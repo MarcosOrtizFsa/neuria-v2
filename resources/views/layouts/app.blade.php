@@ -22,7 +22,10 @@
             @can('viewAny', App\Models\NewsRequest::class)
                 <a class="nav-link" href="{{ route('admin.agencia.index') }}">Agencia de Noticias</a>
             @endcan
-            @foreach(['Contenidos', 'API y Consumos', 'Portal público', 'Configuración'] as $future)
+            @can('viewAny', App\Models\GeneratedDraft::class)
+                <a class="nav-link" href="{{ route('admin.contenidos.index') }}">Contenidos</a>
+            @endcan
+            @foreach(['API y Consumos', 'Portal público', 'Configuración'] as $future)
                 <span class="nav-link opacity-50">{{ $future }} <small>(próximamente)</small></span>
             @endforeach
         </nav>

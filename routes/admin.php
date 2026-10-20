@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\ContentAvailabilityController;
+use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\EditorialProfileController;
 use App\Http\Controllers\Admin\EditorialSourceController;
 use App\Http\Controllers\Admin\MediaApiCredentialController;
@@ -32,4 +34,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::post('agencia', [NewsRequestController::class, 'store'])->name('agencia.store')->middleware('throttle:10,1');
     Route::get('agencia/{newsRequest}', [NewsRequestController::class, 'show'])->name('agencia.show');
     Route::post('agencia/{newsRequest}/reintentar', [NewsRequestController::class, 'retry'])->name('agencia.retry')->middleware('throttle:5,1');
+    Route::get('contenidos', [ContentController::class, 'index'])->name('contenidos.index');
+    Route::get('contenidos/{content}', [ContentController::class, 'show'])->name('contenidos.show');
+    Route::post('contenidos/{content}/suspender', [ContentAvailabilityController::class, 'suspend'])->name('contenidos.suspend');
+    Route::post('contenidos/{content}/reactivar', [ContentAvailabilityController::class, 'reactivate'])->name('contenidos.reactivate');
+    Route::post('contenidos/{content}/retirar', [ContentAvailabilityController::class, 'retire'])->name('contenidos.retire');
 });
