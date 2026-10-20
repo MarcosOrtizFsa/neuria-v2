@@ -18,7 +18,12 @@ class OrganizationFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'name' => fake()->company(),
+            'trade_name' => fake()->companySuffix(),
+            'contact_email' => fake()->companyEmail(),
+            'phone' => fake()->phoneNumber(),
+            'is_active' => true,
+            'internal_notes' => fake()->optional()->sentence(),
         ];
     }
 }

@@ -21,5 +21,12 @@ class ModuleSeeder extends Seeder
                 Permission::updateOrCreate(['code' => "{$code}.{$operation}"], ['module_id' => $module->id, 'operation' => $operation, 'name' => "{$operation} {$name}"]);
             }
         }
+        $extra = ['MEDIOS' => ['GESTIONAR_CANALES', 'GESTIONAR_CREDENCIALES'], 'LINEA_EDITORIAL' => ['VER_VERSIONES', 'RESTAURAR_VERSION']];
+        foreach ($extra as $moduleCode => $operations) {
+            $module = Module::where('code', $moduleCode)->firstOrFail();
+            foreach ($operations as $operation) {
+                Permission::updateOrCreate(['code' => "{$moduleCode}.{$operation}"], ['module_id' => $module->id, 'operation' => $operation, 'name' => str_replace('_', ' ', $operation).' '.$module->name]);
+            }
+        }
     }
 }

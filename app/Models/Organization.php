@@ -24,4 +24,9 @@ class Organization extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function mediaOutlets(): HasMany
+    {
+        return $this->hasMany(MediaOutlet::class);
+    }
 }

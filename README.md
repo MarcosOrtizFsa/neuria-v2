@@ -1,3 +1,65 @@
+# NEURIA 2.0
+
+Plataforma SaaS multiempresa desarrollada con Laravel 13, PHP 8.5, MySQL, Blade, Bootstrap 5.3 y Vite.
+
+## Desarrollo local
+
+```powershell
+C:\Users\BANGHÓ\.config\herd-lite\bin\php.exe artisan migrate
+C:\Users\BANGHÓ\.config\herd-lite\bin\php.exe artisan db:seed
+C:\Users\BANGHÓ\.config\herd-lite\bin\php.exe artisan serve
+npm run dev
+```
+
+El seeder del usuario inicial requiere `ROOT_NAME`, `ROOT_LAST_NAME`, `ROOT_EMAIL` y `ROOT_PASSWORD` en `.env`. Las credenciales privadas nunca deben incorporarse al repositorio.
+
+## Módulos actuales
+
+- Portal público, autenticación y panel privado.
+- Usuarios, organizaciones, roles y permisos granulares.
+- Medios asociados a organizaciones.
+- Canales de distribución por medio.
+- Credenciales API revocables con token almacenado mediante hash.
+- Perfiles editoriales estructurados e historial de versiones.
+- Auditoría de operaciones administrativas.
+
+Las rutas administrativas están agrupadas bajo `/admin`. El módulo MEDIOS utiliza `/admin/medios`; sus canales, credenciales y perfil editorial son recursos subordinados al medio.
+
+## Permisos de Fase 3
+
+- `MEDIOS.VER`, `MEDIOS.ALTA`, `MEDIOS.MODIFICAR`, `MEDIOS.BAJA` y `MEDIOS.CONFIGURAR`.
+- `MEDIOS.GESTIONAR_CANALES` y `MEDIOS.GESTIONAR_CREDENCIALES`.
+- `LINEA_EDITORIAL.VER`, `LINEA_EDITORIAL.MODIFICAR`, `LINEA_EDITORIAL.CONFIGURAR`.
+- `LINEA_EDITORIAL.VER_VERSIONES` y `LINEA_EDITORIAL.RESTAURAR_VERSION`.
+
+ROOT posee acceso global. Los permisos sensibles nuevos no se conceden automáticamente a otros roles. Una denegación individual prevalece sobre el permiso heredado del rol.
+
+## Credenciales API
+
+Cada credencial pertenece a un medio y admite los alcances `content:read` y `content:import`. El token completo se entrega únicamente en la respuesta de creación, con cabeceras que impiden su almacenamiento en caché. La base conserva solamente su hash SHA-256, identificador público y prefijo. Revocar una credencial no elimina su historial.
+
+La API de distribución de contenidos todavía no está implementada.
+
+## Línea editorial y clientes
+
+Cada medio posee como máximo un perfil vigente y múltiples versiones históricas. Guardar o restaurar genera una versión nueva y conserva las anteriores. Las preferencias del cliente están separadas de las instrucciones internas de NEURIA.
+
+Los clientes solo pueden consultar medios de su organización y modificar una lista explícita de preferencias autorizadas. No pueden administrar credenciales, organizaciones, permisos ni instrucciones internas.
+
+## Pruebas
+
+```powershell
+C:\Users\BANGHÓ\.config\herd-lite\bin\php.exe artisan test
+```
+
+Las pruebas cubren autenticación, permisos, aislamiento entre organizaciones, medios, canales, credenciales, auditoría y versionado editorial.
+
+## Funcionalidades futuras
+
+Quedan fuera de esta fase la generación mediante IA, la API de entrega de noticias, publicación en redes, facturación, suscripciones y automatizaciones editoriales.
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">

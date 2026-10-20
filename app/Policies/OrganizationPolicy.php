@@ -12,7 +12,7 @@ class OrganizationPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasPermission('USUARIOS.VER') || $user->organization_id !== null;
     }
 
     /**
@@ -20,7 +20,7 @@ class OrganizationPolicy
      */
     public function view(User $user, Organization $organization): bool
     {
-        return false;
+        return $user->organization_id === $organization->id || $user->hasPermission('USUARIOS.VER');
     }
 
     /**
@@ -28,7 +28,7 @@ class OrganizationPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasPermission('USUARIOS.ALTA') && $user->role?->code !== 'CLIENTE';
     }
 
     /**
@@ -36,7 +36,7 @@ class OrganizationPolicy
      */
     public function update(User $user, Organization $organization): bool
     {
-        return false;
+        return $user->hasPermission('USUARIOS.MODIFICAR') && $user->role?->code !== 'CLIENTE';
     }
 
     /**
@@ -44,7 +44,7 @@ class OrganizationPolicy
      */
     public function delete(User $user, Organization $organization): bool
     {
-        return false;
+        return $user->hasPermission('USUARIOS.BAJA') && $user->role?->code !== 'CLIENTE';
     }
 
     /**

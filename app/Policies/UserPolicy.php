@@ -11,7 +11,7 @@ class UserPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasPermission('USUARIOS.VER');
     }
 
     /**
@@ -19,7 +19,7 @@ class UserPolicy
      */
     public function view(User $user, User $model): bool
     {
-        return false;
+        return $user->id === $model->id || ($user->hasPermission('USUARIOS.VER') && $this->canManageRole($user, $model));
     }
 
     /**
@@ -27,7 +27,7 @@ class UserPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasPermission('USUARIOS.ALTA');
     }
 
     /**
@@ -35,7 +35,7 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return false;
+        return $user->hasPermission('USUARIOS.MODIFICAR') && $this->canManageRole($user, $model);
     }
 
     /**
@@ -43,7 +43,7 @@ class UserPolicy
      */
     public function delete(User $user, User $model): bool
     {
-        return false;
+        return $user->hasPermission('USUARIOS.BAJA') && $user->id !== $model->id && $this->canManageRole($user, $model);
     }
 
     /**
@@ -60,5 +60,10 @@ class UserPolicy
     public function forceDelete(User $user, User $model): bool
     {
         return false;
+    }
+
+    private function canManageRole(User $actor, User $target): bool
+    {
+        return $actor->isRoot() || ($actor->role?->level() ?? 0) > ($target->role?->level() ?? 0);
     }
 }
