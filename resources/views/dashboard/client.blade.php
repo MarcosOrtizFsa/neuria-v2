@@ -1,0 +1,1 @@
+<x-layouts.app title="Mi panel"><h1 class="h3">Bienvenido, {{ $user->name }}</h1><p class="lead">{{ $user->organization?->name ?? 'Organización no asignada' }}</p><div class="card metric-card"><div class="card-body"><h2 class="h5">Servicios contratados</h2><p class="text-secondary mb-0">Esta sección estará disponible próximamente.</p></div></div></x-layouts.app>
