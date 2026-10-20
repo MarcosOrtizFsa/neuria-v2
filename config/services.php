@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'openai' => [
+        'key' => env('OPENAI_API_KEY'),
+        'research_model' => env('OPENAI_RESEARCH_MODEL'),
+        'writing_model' => env('OPENAI_WRITING_MODEL'),
+        'web_search' => filter_var(env('OPENAI_WEB_SEARCH', true), FILTER_VALIDATE_BOOL),
+        'timeout' => (int) env('OPENAI_TIMEOUT', 240),
+        'max_output_tokens' => (int) env('OPENAI_MAX_OUTPUT_TOKENS', 8000),
+        'max_retries' => (int) env('OPENAI_MAX_RETRIES', 3),
+    ],
+
 ];

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AuditLog;
 use App\Models\MediaChannel;
 use App\Models\MediaOutlet;
 use App\Models\Organization;
@@ -66,6 +67,31 @@ class PhaseThreeTest extends TestCase
         $this->assertSame($credential->id, $service->verify($result['plain_text_token'])?->id);
         $service->revoke($credential);
         $this->assertNull($service->verify($result['plain_text_token']));
+    }
+
+    public function test_generate_token_endpoint_displays_secret_once_without_caching_or_auditing_it(): void
+    {
+        $root = $this->root();
+        $media = MediaOutlet::factory()->create();
+
+        $response = $this->actingAs($root)->post(route('admin.medios.credenciales.store', $media), [
+            'name' => 'Portal de demostración',
+            'scopes' => ['content:read'],
+        ]);
+
+        $response->assertOk();
+        $cacheControl = $response->headers->get('Cache-Control');
+        $this->assertStringContainsString('no-store', $cacheControl);
+        $this->assertStringContainsString('private', $cacheControl);
+        preg_match('/value="(nria_[^"]+)"/', $response->getContent(), $matches);
+        $this->assertArrayHasKey(1, $matches);
+        $plainTextToken = html_entity_decode($matches[1]);
+        $credential = $media->apiCredentials()->firstOrFail();
+        $this->assertSame(hash('sha256', $plainTextToken), $credential->token_hash);
+        $this->assertNotSame($plainTextToken, $credential->token_hash);
+        $this->assertStringNotContainsString($plainTextToken, json_encode(AuditLog::firstOrFail()->toArray(), JSON_THROW_ON_ERROR));
+
+        $this->actingAs($root)->get(route('admin.medios.show', $media))->assertOk()->assertDontSee($plainTextToken);
     }
 
     public function test_editorial_changes_create_versions_and_restore_creates_another_version(): void

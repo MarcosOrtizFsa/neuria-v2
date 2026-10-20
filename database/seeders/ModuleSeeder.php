@@ -21,7 +21,11 @@ class ModuleSeeder extends Seeder
                 Permission::updateOrCreate(['code' => "{$code}.{$operation}"], ['module_id' => $module->id, 'operation' => $operation, 'name' => "{$operation} {$name}"]);
             }
         }
-        $extra = ['MEDIOS' => ['GESTIONAR_CANALES', 'GESTIONAR_CREDENCIALES'], 'LINEA_EDITORIAL' => ['VER_VERSIONES', 'RESTAURAR_VERSION']];
+        $extra = [
+            'MEDIOS' => ['GESTIONAR_CANALES', 'GESTIONAR_CREDENCIALES'],
+            'LINEA_EDITORIAL' => ['VER_VERSIONES', 'RESTAURAR_VERSION'],
+            'AGENCIA_NOTICIAS' => ['CANCELAR', 'INVESTIGAR', 'GENERAR', 'REINTENTAR', 'VER_RESULTADOS', 'VER_COSTOS'],
+        ];
         foreach ($extra as $moduleCode => $operations) {
             $module = Module::where('code', $moduleCode)->firstOrFail();
             foreach ($operations as $operation) {

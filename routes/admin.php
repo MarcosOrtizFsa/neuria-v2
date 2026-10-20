@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\EditorialSourceController;
 use App\Http\Controllers\Admin\MediaApiCredentialController;
 use App\Http\Controllers\Admin\MediaChannelController;
 use App\Http\Controllers\Admin\MediaOutletController;
+use App\Http\Controllers\Admin\NewsRequestController;
 use App\Http\Controllers\Admin\OrganizationController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
@@ -26,4 +27,9 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::post('medios/{mediaOutlet}/linea-editorial/{profile}/restaurar/{version}', [EditorialProfileController::class, 'restore'])->name('medios.editorial.restore');
     Route::post('medios/{mediaOutlet}/linea-editorial/{profile}/fuentes', [EditorialSourceController::class, 'store'])->name('medios.editorial.sources.store');
     Route::delete('medios/{mediaOutlet}/linea-editorial/{profile}/fuentes/{source}', [EditorialSourceController::class, 'destroy'])->name('medios.editorial.sources.destroy');
+    Route::get('agencia', [NewsRequestController::class, 'index'])->name('agencia.index');
+    Route::get('agencia/nueva', [NewsRequestController::class, 'create'])->name('agencia.create');
+    Route::post('agencia', [NewsRequestController::class, 'store'])->name('agencia.store')->middleware('throttle:10,1');
+    Route::get('agencia/{newsRequest}', [NewsRequestController::class, 'show'])->name('agencia.show');
+    Route::post('agencia/{newsRequest}/reintentar', [NewsRequestController::class, 'retry'])->name('agencia.retry')->middleware('throttle:5,1');
 });

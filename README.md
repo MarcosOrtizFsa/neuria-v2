@@ -118,3 +118,26 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## Agencia de Noticias: ejecución local
+
+La Fase 4 usa la cola de base de datos. Además del servidor web y Vite, debe mantenerse activo un trabajador:
+
+```powershell
+php artisan queue:work --tries=3 --timeout=330 --backoff=10
+```
+
+Desde **Agencia de Noticias → Nueva solicitud**, seleccione al menos un canal activo cuyo medio tenga una línea editorial. La investigación se ejecuta una sola vez y genera un borrador por destino. Todos los borradores quedan en `PENDIENTE_REVISION`; este módulo no publica ni entrega contenido automáticamente.
+
+Variables requeridas en `.env`:
+
+```dotenv
+OPENAI_API_KEY=
+OPENAI_RESEARCH_MODEL=gpt-5.4
+OPENAI_WRITING_MODEL=gpt-5.4
+OPENAI_WEB_SEARCH=true
+OPENAI_TIMEOUT=240
+OPENAI_MAX_OUTPUT_TOKENS=8000
+OPENAI_MAX_RETRIES=3
+QUEUE_CONNECTION=database
+```
