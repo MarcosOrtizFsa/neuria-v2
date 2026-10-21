@@ -96,3 +96,25 @@ document.querySelector('[data-contact-form]')?.addEventListener('submit', async 
         button.disabled = false;
     }
 });
+
+document.querySelectorAll('[data-video-open]').forEach((trigger) => {
+    trigger.addEventListener('click', () => {
+        const dialog = document.querySelector(trigger.dataset.videoOpen);
+        const video = dialog?.querySelector('[data-profile-video]');
+        dialog?.showModal();
+        video?.play().catch(() => {});
+    });
+});
+
+document.querySelectorAll('[data-video-dialog]').forEach((dialog) => {
+    const video = dialog.querySelector('[data-profile-video]');
+    const closeVideo = () => dialog.close();
+    dialog.querySelector('[data-video-close]')?.addEventListener('click', closeVideo);
+    dialog.addEventListener('click', (event) => {
+        if (event.target === dialog) closeVideo();
+    });
+    dialog.addEventListener('close', () => {
+        video?.pause();
+        if (video) video.currentTime = 0;
+    });
+});

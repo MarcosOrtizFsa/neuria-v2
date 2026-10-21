@@ -59,7 +59,20 @@
             <div class="center-heading reveal"><p class="eyebrow">Nuestro equipo</p><h2>Especialistas Virtuales IA <span>+</span><br>Dirección estratégica</h2><p>Capacidades especializadas que trabajan de forma coordinada, bajo liderazgo humano.</p></div>
             <div class="team-grid">
                 @foreach (config('neuria_home.team') as $member)
-                    <article class="team-card reveal"><div class="avatar"><span>{{ $member['initials'] }}</span></div><p class="team-label">{{ $member['label'] }}</p><h3>{{ $member['name'] }}</h3><strong>{{ $member['role'] }}</strong><p>{{ $member['text'] }}</p></article>
+                    <article class="team-card reveal {{ isset($member['video']) ? 'team-card-featured' : '' }}">
+                        <div class="avatar">
+                            @isset($member['image'])
+                                <img src="{{ asset($member['image']) }}" alt="{{ $member['name'] }}, {{ $member['role'] }} en NEURIA" width="836" height="455" loading="lazy">
+                                <span class="play-indicator" aria-hidden="true">▶</span>
+                            @else
+                                <span>{{ $member['initials'] }}</span>
+                            @endisset
+                        </div>
+                        <p class="team-label">{{ $member['label'] }}</p><h3>{{ $member['name'] }}</h3><strong>{{ $member['role'] }}</strong><p>{{ $member['text'] }}</p>
+                        @isset($member['video'])
+                            <button class="team-video-trigger" type="button" aria-label="Ver presentación de {{ $member['name'] }}" data-video-open="#team-video-{{ $loop->index }}"></button>
+                        @endisset
+                    </article>
                 @endforeach
             </div>
         </div></section>
@@ -102,5 +115,18 @@
     </main>
     <footer class="site-footer"><div class="shell footer-inner"><a class="brand" href="#inicio"><span class="brand-mark" aria-hidden="true">N</span><span>NEURIA</span></a><p>© {{ date('Y') }} NEURIA · Capacidad Empresarial Aumentada</p><p>Estrategia · Tecnología · IA</p></div></footer>
     <a class="floating-contact" href="#contacto"><span></span>¿Hablamos?</a>
+    @foreach (config('neuria_home.team') as $member)
+        @isset($member['video'])
+            <dialog class="video-dialog" id="team-video-{{ $loop->index }}" data-video-dialog aria-labelledby="video-dialog-title-{{ $loop->index }}">
+                <div class="video-dialog-inner">
+                    <div class="video-dialog-header"><div><p>{{ $member['label'] }}</p><h2 id="video-dialog-title-{{ $loop->index }}">Conocé a {{ ucfirst(strtolower($member['name'])) }}</h2></div><button type="button" aria-label="Cerrar video" data-video-close>×</button></div>
+                    <video controls preload="metadata" poster="{{ asset($member['image']) }}" data-profile-video>
+                        <source src="{{ asset($member['video']) }}" type="video/mp4">
+                        Tu navegador no puede reproducir este video.
+                    </video>
+                </div>
+            </dialog>
+        @endisset
+    @endforeach
 </body>
 </html>

@@ -91,9 +91,16 @@ h2 em { color: var(--blue); font-style: normal; }
 .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
 .team-card { position: relative; padding: 1.3rem; background: rgba(255,255,255,.78); border: 1px solid rgba(255,255,255,.9); border-radius: var(--radius); transition: transform .3s, background .3s; }
 .team-card:hover { transform: translateY(-6px); background: white; }
-.avatar { aspect-ratio: 1; display: grid; place-items: center; margin-bottom: 1.3rem; overflow: hidden; color: white; background: radial-gradient(circle at 70% 25%, rgba(34,211,238,.48), transparent 28%), linear-gradient(145deg, #172a49, #07101f); border-radius: calc(var(--radius) - .4rem); }
+.team-card-featured { cursor: pointer; }
+.team-card-featured:hover .play-indicator { transform: translate(-50%, -50%) scale(1.08); background: var(--blue); }
+.avatar { aspect-ratio: 1; position: relative; display: grid; place-items: center; margin-bottom: 1.3rem; overflow: hidden; color: white; background: radial-gradient(circle at 70% 25%, rgba(34,211,238,.48), transparent 28%), linear-gradient(145deg, #172a49, #07101f); border-radius: calc(var(--radius) - .4rem); }
 .avatar::before { content: ''; width: 60%; aspect-ratio: 1; position: absolute; opacity: .5; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; }
 .avatar span { position: relative; font-size: 2.6rem; font-weight: 600; letter-spacing: -.05em; }
+.avatar img { width: 100%; height: 100%; position: relative; z-index: 1; object-fit: cover; object-position: center; transition: transform .5s ease; }
+.team-card-featured:hover .avatar img { transform: scale(1.035); }
+.avatar .play-indicator { width: 58px; height: 58px; position: absolute; z-index: 2; top: 50%; left: 50%; display: grid; place-items: center; padding-left: 4px; color: white; background: rgba(6,16,31,.78); border: 1px solid rgba(255,255,255,.55); border-radius: 50%; box-shadow: 0 12px 35px rgba(0,0,0,.28); backdrop-filter: blur(8px); font-size: .9rem; transform: translate(-50%, -50%); transition: transform .25s, background .25s; }
+.team-video-trigger { position: absolute; z-index: 3; inset: 0; width: 100%; background: transparent; border: 0; border-radius: var(--radius); cursor: pointer; }
+.team-video-trigger:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
 .team-label { margin: 0 0 .4rem; color: var(--blue) !important; font-size: .62rem !important; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
 .team-card h3 { margin: 0; font-size: 1.6rem; letter-spacing: -.03em; }
 .team-card strong { display: block; margin: .15rem 0 .7rem; color: var(--ink-soft); font-size: .76rem; font-weight: 600; }
@@ -151,6 +158,14 @@ h2 em { color: var(--blue); font-style: normal; }
 .site-footer { padding: 1.5rem 0; color: rgba(255,255,255,.48); background: #030914; border-top: 1px solid rgba(255,255,255,.09); }
 .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 2rem; }.footer-inner .brand { color: white; font-size: .85rem; }.footer-inner .brand-mark { width: 30px; height: 30px; }.footer-inner p { margin: 0; font-size: .7rem; }
 .floating-contact { position: fixed; z-index: 90; right: 24px; bottom: 24px; display: flex; align-items: center; gap: .65rem; padding: .8rem 1rem; color: white; background: rgba(6,16,31,.9); border: 1px solid rgba(255,255,255,.18); border-radius: 999px; box-shadow: 0 12px 35px rgba(0,0,0,.25); backdrop-filter: blur(12px); font-size: .76rem; }
+.video-dialog { width: min(1040px, calc(100% - 32px)); max-height: calc(100svh - 32px); padding: 0; overflow: hidden; color: white; background: #030914; border: 1px solid rgba(255,255,255,.2); border-radius: 1.3rem; box-shadow: 0 35px 100px rgba(0,0,0,.65); }
+.video-dialog::backdrop { background: rgba(1,5,13,.86); backdrop-filter: blur(10px); }
+.video-dialog-inner { padding: 1rem; }
+.video-dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 2rem; padding: .35rem .35rem 1rem .7rem; }
+.video-dialog-header p { margin: 0; color: var(--cyan); font-size: .62rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.video-dialog-header h2 { margin: .1rem 0 0; font-size: clamp(1.4rem, 3vw, 2rem); letter-spacing: -.035em; }
+.video-dialog-header button { width: 42px; height: 42px; display: grid; place-items: center; flex: 0 0 auto; padding: 0; color: white; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); border-radius: 50%; cursor: pointer; font-size: 1.6rem; line-height: 1; }
+.video-dialog video { width: 100%; max-height: calc(100svh - 150px); display: block; background: black; border-radius: .8rem; }
 
 .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
 .reveal.is-visible { opacity: 1; transform: translateY(0); }

@@ -10,10 +10,10 @@ return [
         ['icon' => '06', 'title' => 'Capacitación y adopción', 'text' => 'Formamos a tu equipo para una adopción exitosa y sostenible.'],
     ],
     'team' => [
-        ['initials' => 'TE', 'label' => 'Especialista Virtual IA', 'name' => 'TECH', 'role' => 'Arquitecto Tecnológico', 'text' => 'Diseña la arquitectura tecnológica ideal y lidera cada implementación.'],
-        ['initials' => 'IA', 'label' => 'Especialista Virtual IA', 'name' => 'IALEX', 'role' => 'Especialista en Inteligencia Artificial', 'text' => 'Aplica IA para automatizar, predecir y optimizar resultados.'],
-        ['initials' => 'BR', 'label' => 'Especialista Virtual IA', 'name' => 'BRAND', 'role' => 'Marketing y Comunicación', 'text' => 'Potencia tu marca, posicionamiento y comunicación.'],
-        ['initials' => 'MA', 'label' => 'Dirección humana', 'name' => 'MARCOS', 'role' => 'Director de NEURIA', 'text' => 'Visión, experiencia y liderazgo para alcanzar los objetivos.'],
+        ['initials' => 'LU', 'label' => 'Especialista Virtual IA', 'name' => 'LUCAS', 'role' => 'Arquitecto Tecnológico', 'text' => 'Diseña la arquitectura tecnológica ideal y lidera cada implementación.'],
+        ['initials' => 'RA', 'label' => 'Especialista Virtual IA', 'name' => 'RAQUEL', 'role' => 'Especialista en Inteligencia Artificial', 'text' => 'Aplica IA para automatizar, predecir y optimizar resultados.'],
+        ['initials' => 'KA', 'label' => 'Especialista Virtual IA', 'name' => 'KARINA', 'role' => 'Marketing y Comunicación', 'text' => 'Potencia tu marca, posicionamiento y comunicación.', 'image' => 'media/karina-neuria.png', 'video' => 'media/presentacion-karina-neuria.mp4'],
+        ['initials' => 'MA', 'label' => 'Dirección humana', 'name' => 'MARCOS', 'role' => 'Director de NEURIA', 'text' => 'Visión, experiencia y liderazgo para alcanzar los objetivos.', 'image' => 'media/marcos-ortiz-neuria.png', 'video' => 'media/presentacion-neuria.mp4'],
     ],
     'specialists' => ['Asesor Virtual de Marketing', 'Asistente Administrativo', 'Especialista Virtual de RR.HH.', 'Asistente Comercial', 'Especialista en Datos', 'Asistente Técnico', 'Gestión documental', 'Atención al cliente'],
     'reasons' => [
