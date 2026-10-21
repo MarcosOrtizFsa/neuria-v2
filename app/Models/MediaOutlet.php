@@ -36,4 +36,9 @@ class MediaOutlet extends Model
     {
         return $this->hasOne(EditorialProfile::class);
     }
+
+    public function apiUsageLogs(): HasMany
+    {
+        return $this->hasMany(ApiUsageLog::class);
+    }
 }

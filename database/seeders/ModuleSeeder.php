@@ -13,7 +13,7 @@ class ModuleSeeder extends Seeder
      */
     public function run(): void
     {
-        $modules = ['INICIO' => 'Inicio', 'USUARIOS' => 'Usuarios', 'MEDIOS' => 'Medios', 'LINEA_EDITORIAL' => 'Línea editorial', 'AGENCIA_NOTICIAS' => 'Agencia de Noticias', 'CONTENIDOS' => 'Contenidos', 'API_CONSUMOS' => 'API y Consumos', 'PORTAL_PUBLICO' => 'Portal público', 'CONFIGURACION' => 'Configuración'];
+        $modules = ['INICIO' => 'Inicio', 'USUARIOS' => 'Usuarios', 'MEDIOS' => 'Medios', 'LINEA_EDITORIAL' => 'Línea editorial', 'AGENCIA_NOTICIAS' => 'Agencia de Noticias', 'CONTENIDOS' => 'Contenidos', 'API_CONSUMOS' => 'API y Consumos', 'PILOTO_AUTOMATICO' => 'Piloto Automático', 'PORTAL_PUBLICO' => 'Portal público', 'CONFIGURACION' => 'Configuración'];
         $operations = ['VER', 'ALTA', 'MODIFICAR', 'BAJA', 'APROBAR', 'EXPORTAR', 'CONFIGURAR'];
         foreach ($modules as $code => $name) {
             $module = Module::updateOrCreate(['code' => $code], ['name' => $name, 'sort_order' => array_search($code, array_keys($modules), true) + 1]);
@@ -26,6 +26,7 @@ class ModuleSeeder extends Seeder
             'LINEA_EDITORIAL' => ['VER_VERSIONES', 'RESTAURAR_VERSION'],
             'AGENCIA_NOTICIAS' => ['CANCELAR', 'INVESTIGAR', 'GENERAR', 'REINTENTAR', 'VER_RESULTADOS', 'VER_COSTOS'],
             'CONTENIDOS' => ['SUSPENDER', 'REACTIVAR', 'RETIRAR', 'VER_HISTORIAL'],
+            'PILOTO_AUTOMATICO' => ['ACTIVAR', 'PAUSAR', 'ARCHIVAR', 'EJECUTAR', 'VER_COSTOS'],
         ];
         foreach ($extra as $moduleCode => $operations) {
             $module = Module::where('code', $moduleCode)->firstOrFail();

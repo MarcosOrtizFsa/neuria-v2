@@ -8,4 +8,5 @@ body { font-family: 'Instrument Sans', system-ui, sans-serif; background: #f5f7f
 .sidebar .nav-link { color: #cbd5e1; border-radius: .6rem; }
 .sidebar .nav-link:hover, .sidebar .nav-link.active { color: white; background: rgba(91,92,240,.35); }
 .metric-card { border: 0; box-shadow: 0 .25rem 1rem rgba(17,24,39,.07); }
+.automation-result-text { white-space: pre-wrap; line-height: 1.7; margin-bottom: 1rem; }
 @media (max-width: 991.98px) { .sidebar { width: 100%; } }

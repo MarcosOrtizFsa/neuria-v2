@@ -25,5 +25,7 @@ class RolePermissionSeeder extends Seeder
         $operator->permissions()->sync(Permission::whereIn('code', ['INICIO.VER', 'USUARIOS.VER'])->pluck('id'));
         $client = Role::where('code', 'CLIENTE')->firstOrFail();
         $client->permissions()->sync(Permission::where('code', 'INICIO.VER')->pluck('id'));
+        $manager->permissions()->syncWithoutDetaching(Permission::where('code', 'like', 'PILOTO_AUTOMATICO.%')->pluck('id'));
+        $admin->permissions()->syncWithoutDetaching(Permission::whereIn('code', ['PILOTO_AUTOMATICO.VER', 'PILOTO_AUTOMATICO.ALTA', 'PILOTO_AUTOMATICO.MODIFICAR', 'PILOTO_AUTOMATICO.ACTIVAR', 'PILOTO_AUTOMATICO.PAUSAR', 'PILOTO_AUTOMATICO.ARCHIVAR', 'PILOTO_AUTOMATICO.EJECUTAR'])->pluck('id'));
     }
 }

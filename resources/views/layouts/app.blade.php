@@ -25,7 +25,13 @@
             @can('viewAny', App\Models\GeneratedDraft::class)
                 <a class="nav-link" href="{{ route('admin.contenidos.index') }}">Contenidos</a>
             @endcan
-            @foreach(['API y Consumos', 'Portal público', 'Configuración'] as $future)
+            @can('viewAny', App\Models\AutomationTask::class)
+                <a class="nav-link" href="{{ route('admin.piloto.index') }}">Piloto Automático</a>
+            @endcan
+            @if(auth()->user()->role?->code === 'CLIENTE' || auth()->user()->hasPermission('API_CONSUMOS.VER'))
+                <a class="nav-link" href="{{ route('admin.api-consumos.index') }}">API y Consumos</a>
+            @endif
+            @foreach(['Portal público', 'Configuración'] as $future)
                 <span class="nav-link opacity-50">{{ $future }} <small>(próximamente)</small></span>
             @endforeach
         </nav>

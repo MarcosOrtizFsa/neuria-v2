@@ -42,4 +42,9 @@ class GeneratedDraft extends Model
     {
         return $this->hasMany(ContentStatusHistory::class);
     }
+
+    public function distributionEvents(): HasMany
+    {
+        return $this->hasMany(ContentDistributionEvent::class);
+    }
 }

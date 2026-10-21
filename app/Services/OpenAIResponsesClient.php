@@ -28,7 +28,7 @@ class OpenAIResponsesClient
             throw new RuntimeException('OpenAI devolvió JSON inválido.', previous: $exception);
         }
 
-        return ['id' => $response['id'] ?? null, 'model' => $response['model'] ?? $payload['model'], 'data' => $data, 'usage' => $response['usage'] ?? []];
+        return ['id' => $response['id'] ?? null, 'model' => $response['model'] ?? $payload['model'], 'data' => $data, 'usage' => $response['usage'] ?? [], 'output' => $response['output'] ?? []];
     }
 
     private function client(): PendingRequest
@@ -41,6 +41,6 @@ class OpenAIResponsesClient
         return Http::withToken($key)
             ->acceptJson()
             ->timeout(config('services.openai.timeout'))
-            ->retry(config('services.openai.max_retries'), 1000, fn (\Throwable $exception): bool => ! $exception instanceof RequestException || in_array($exception->response->status(), [408, 409, 429, 500, 502, 503, 504], true));
+            ->retry(config('services.openai.max_retries'), 1000, fn (\Throwable $exception): bool => $exception instanceof RequestException && in_array($exception->response->status(), [408, 409, 429, 500, 502, 503, 504], true));
     }
 }

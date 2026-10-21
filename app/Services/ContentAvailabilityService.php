@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 
 class ContentAvailabilityService
 {
+    public function __construct(private readonly ContentDistributionEventService $events) {}
+
     /** @return list<string> */
     public function validationErrors(GeneratedDraft $draft): array
     {
@@ -96,6 +98,7 @@ class ContentAvailabilityService
             return;
         }
         $draft->update(['status' => $to]);
-        $draft->statusHistory()->create(['user_id' => $user?->id, 'from_status' => $from, 'to_status' => $to, 'reason' => $reason]);
+        $history = $draft->statusHistory()->create(['user_id' => $user?->id, 'from_status' => $from, 'to_status' => $to, 'reason' => $reason]);
+        $this->events->record($draft, $history);
     }
 }

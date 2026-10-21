@@ -45,4 +45,20 @@ return [
         'max_retries' => (int) env('OPENAI_MAX_RETRIES', 3),
     ],
 
+    'media_api' => [
+        'rate_limit_per_minute' => (int) env('MEDIA_API_RATE_LIMIT', 60),
+        'default_page_size' => (int) env('MEDIA_API_PAGE_SIZE', 20),
+        'maximum_page_size' => (int) env('MEDIA_API_MAX_PAGE_SIZE', 100),
+    ],
+
+    'automation' => [
+        'model' => env('AUTOMATION_OPENAI_MODEL', env('OPENAI_WRITING_MODEL', 'gpt-5.4')),
+        'default_timezone' => env('AUTOMATION_DEFAULT_TIMEZONE', 'America/Argentina/Buenos_Aires'),
+        'overlap_minutes' => (int) env('AUTOMATION_RESEARCH_OVERLAP_MINUTES', 15),
+        'late_tolerance_minutes' => (int) env('AUTOMATION_LATE_TOLERANCE_MINUTES', 180),
+        'quote_valid_days' => (int) env('AUTOMATION_QUOTE_VALID_DAYS', 7),
+        'interpret_rate_limit' => (int) env('AUTOMATION_INTERPRET_RATE_LIMIT', 5),
+        'run_now_rate_limit' => (int) env('AUTOMATION_RUN_NOW_RATE_LIMIT', 5),
+    ],
+
 ];
