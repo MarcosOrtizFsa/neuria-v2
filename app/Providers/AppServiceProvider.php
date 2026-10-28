@@ -52,7 +52,7 @@ class AppServiceProvider extends ServiceProvider
                 ->by(($credential?->id ?? hash('sha256', (string) $request->ip())).'|'.$endpoint)
                 ->response(function (Request $request, array $headers) use ($credential, $endpoint) {
                     ApiUsageLog::create([
-                        'request_id' => (string) Str::uuid(),
+                        'request_id' => $request->attributes->get('api_request_id', (string) Str::uuid()),
                         'media_outlet_id' => $credential?->media_outlet_id,
                         'media_api_credential_id' => $credential?->id,
                         'endpoint' => $endpoint,
@@ -64,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
                         'ip_hash' => $request->ip() ? hash_hmac('sha256', $request->ip(), (string) config('app.key')) : null,
                     ]);
 
-                    return response()->json(['error' => ['code' => 'RATE_LIMIT_EXCEEDED', 'message' => 'Se alcanzó el límite temporal de solicitudes.']], 429, $headers);
+                    return response()->json(['error' => ['code' => 'RATE_LIMIT_EXCEEDED', 'message' => 'Se alcanzó el límite temporal de solicitudes.', 'request_id' => $request->attributes->get('api_request_id')]], 429, $headers);
                 });
         });
     }

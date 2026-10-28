@@ -39,7 +39,7 @@ class LogApiUsage
         $credential = $request->attributes->get('media_api_credential');
 
         ApiUsageLog::create([
-            'request_id' => (string) Str::uuid(),
+            'request_id' => $request->attributes->get('api_request_id', (string) Str::uuid()),
             'media_outlet_id' => $credential?->media_outlet_id,
             'media_api_credential_id' => $credential?->id,
             'endpoint' => $request->route()?->getName() ?? $request->path(),

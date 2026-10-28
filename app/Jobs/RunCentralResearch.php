@@ -9,13 +9,14 @@ use App\Models\NewsRequest;
 use App\Models\NewsResearch;
 use App\Services\NewsWorkflowService;
 use App\Services\OpenAIResearchService;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Throwable;
 
-class RunCentralResearch implements ShouldQueue
+class RunCentralResearch implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -23,11 +24,18 @@ class RunCentralResearch implements ShouldQueue
 
     public int $timeout = 300;
 
+    public int $uniqueFor = 600;
+
     public function __construct(public int $newsRequestId, public int $researchId, public int $jobRunId) {}
 
     public function backoff(): array
     {
         return [10, 30, 90];
+    }
+
+    public function uniqueId(): string
+    {
+        return "research:{$this->researchId}";
     }
 
     public function handle(OpenAIResearchService $openAI, NewsWorkflowService $workflow): void

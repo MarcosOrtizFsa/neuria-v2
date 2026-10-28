@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Jobs\GenerateDestinationContent;
 use App\Jobs\RunCentralResearch;
 use App\Models\AiJobRun;
+use App\Models\MediaApiCredential;
 use App\Models\MediaChannel;
 use App\Models\NewsRequest;
 use App\Models\User;
@@ -26,9 +27,9 @@ class NewsWorkflowService
         'PARCIALMENTE_COMPLETADA' => ['GENERANDO'],
     ];
 
-    public function createAndDispatch(array $data, User $user): NewsRequest
+    public function createAndDispatch(array $data, User $user, ?MediaApiCredential $credential = null, ?string $idempotencyKey = null, ?string $payloadHash = null): NewsRequest
     {
-        return DB::transaction(function () use ($data, $user): NewsRequest {
+        return DB::transaction(function () use ($data, $user, $credential, $idempotencyKey, $payloadHash): NewsRequest {
             $channels = MediaChannel::query()
                 ->with(['mediaOutlet.editorialProfile.versions'])
                 ->whereKey($data['channel_ids'])
@@ -49,6 +50,10 @@ class NewsWorkflowService
             $request = NewsRequest::create([
                 ...Arr::only($data, ['title', 'description', 'context', 'specific_instructions', 'category', 'priority', 'event_at', 'web_search_enabled', 'research_notes']),
                 'requested_by' => $user->id,
+                'api_media_outlet_id' => $credential?->media_outlet_id,
+                'api_credential_id' => $credential?->id,
+                'api_idempotency_key' => $idempotencyKey,
+                'api_payload_hash' => $payloadHash,
                 'initial_urls' => $urls ?: null,
                 'status' => 'PENDIENTE',
                 'progress' => 5,
@@ -75,7 +80,17 @@ class NewsWorkflowService
             ]);
             $request->statusHistory()->create(['user_id' => $user->id, 'to_status' => 'PENDIENTE', 'reason' => 'Solicitud creada e incorporada a la cola.']);
 
-            DB::afterCommit(fn () => RunCentralResearch::dispatch($request->id, $research->id, $jobRun->id));
+            DB::afterCommit(function () use ($request, $research, $jobRun): void {
+                try {
+                    RunCentralResearch::dispatch($request->id, $research->id, $jobRun->id);
+                } catch (\Throwable $exception) {
+                    $request->update(['status' => 'ERROR', 'progress' => 0]);
+                    $research->update(['status' => 'ERROR', 'error_message' => 'No fue posible incorporar la investigación a la cola.']);
+                    $jobRun->update(['status' => 'ERROR', 'error_message' => 'No fue posible incorporar el trabajo a la cola.', 'completed_at' => now()]);
+
+                    throw $exception;
+                }
+            });
 
             return $request;
         });

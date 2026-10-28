@@ -12,13 +12,14 @@ use App\Models\NewsResearch;
 use App\Services\ContentAvailabilityService;
 use App\Services\NewsWorkflowService;
 use App\Services\OpenAIContentGenerationService;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Throwable;
 
-class GenerateDestinationContent implements ShouldQueue
+class GenerateDestinationContent implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
@@ -26,11 +27,18 @@ class GenerateDestinationContent implements ShouldQueue
 
     public int $timeout = 300;
 
+    public int $uniqueFor = 600;
+
     public function __construct(public int $newsRequestId, public int $researchId, public int $destinationId, public int $jobRunId) {}
 
     public function backoff(): array
     {
         return [10, 30, 90];
+    }
+
+    public function uniqueId(): string
+    {
+        return "destination:{$this->destinationId}";
     }
 
     public function handle(OpenAIContentGenerationService $openAI, NewsWorkflowService $workflow, ContentAvailabilityService $availability): void

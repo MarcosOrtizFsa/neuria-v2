@@ -14,7 +14,7 @@ class EnsureMediaApiScope
         /** @var MediaApiCredential|null $credential */
         $credential = $request->attributes->get('media_api_credential');
         if (! $credential || ! in_array($scope, $credential->scopes ?? [], true)) {
-            return response()->json(['error' => ['code' => 'INSUFFICIENT_SCOPE', 'message' => 'La credencial no tiene el permiso requerido.']], 403);
+            return response()->json(['error' => ['code' => 'INSUFFICIENT_SCOPE', 'message' => 'La credencial no tiene el permiso requerido.', 'request_id' => $request->attributes->get('api_request_id')]], 403);
         }
 
         return $next($request);

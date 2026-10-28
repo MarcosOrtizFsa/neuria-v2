@@ -33,6 +33,6 @@ class AuthenticateMediaApi
 
     private function error(): JsonResponse
     {
-        return response()->json(['error' => ['code' => 'UNAUTHENTICATED', 'message' => 'Credencial inválida o inactiva.']], 401);
+        return response()->json(['error' => ['code' => 'UNAUTHENTICATED', 'message' => 'Credencial inválida o inactiva.', 'request_id' => request()->attributes->get('api_request_id')]], 401);
     }
 }

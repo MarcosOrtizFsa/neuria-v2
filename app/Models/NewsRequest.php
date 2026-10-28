@@ -10,14 +10,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
-#[Fillable(['requested_by', 'title', 'description', 'context', 'specific_instructions', 'category', 'priority', 'event_at', 'web_search_enabled', 'initial_urls', 'research_notes', 'status', 'progress'])]
+#[Fillable(['public_id', 'requested_by', 'api_media_outlet_id', 'api_credential_id', 'api_idempotency_key', 'api_payload_hash', 'title', 'description', 'context', 'specific_instructions', 'category', 'priority', 'event_at', 'web_search_enabled', 'initial_urls', 'research_notes', 'status', 'progress'])]
 class NewsRequest extends Model
 {
     public const TERMINAL_STATUSES = ['COMPLETADA', 'PARCIALMENTE_COMPLETADA', 'ERROR', 'CANCELADA'];
 
     /** @use HasFactory<NewsRequestFactory> */
     use HasFactory, SoftDeletes;
+
+    protected static function booted(): void
+    {
+        static::creating(function (NewsRequest $newsRequest): void {
+            $newsRequest->public_id ??= (string) Str::uuid();
+        });
+    }
 
     protected function casts(): array
     {

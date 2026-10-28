@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AssignApiRequestId;
 use App\Http\Middleware\AuthenticateMediaApi;
 use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\EnsureMediaApiScope;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'media.api' => AuthenticateMediaApi::class,
             'media.scope' => EnsureMediaApiScope::class,
             'api.usage' => LogApiUsage::class,
+            'api.request-id' => AssignApiRequestId::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -38,13 +40,13 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
-            return response()->json(['error' => ['code' => 'VALIDATION_ERROR', 'message' => 'Los parámetros enviados no son válidos.', 'details' => $exception->errors()]], 422);
+            return response()->json(['error' => ['code' => 'VALIDATION_ERROR', 'message' => 'Los parámetros enviados no son válidos.', 'request_id' => $request->attributes->get('api_request_id'), 'details' => $exception->errors()]], 422);
         });
         $exceptions->render(function (ModelNotFoundException|NotFoundHttpException $exception, Request $request) {
             if (! $request->is('api/v1/*')) {
                 return null;
             }
 
-            return response()->json(['error' => ['code' => 'NOT_FOUND', 'message' => 'El recurso solicitado no está disponible.']], 404);
+            return response()->json(['error' => ['code' => 'NOT_FOUND', 'message' => 'El recurso solicitado no está disponible.', 'request_id' => $request->attributes->get('api_request_id')]], 404);
         });
     })->create();

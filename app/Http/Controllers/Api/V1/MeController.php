@@ -14,10 +14,21 @@ class MeController extends Controller
         /** @var MediaApiCredential $credential */
         $credential = $request->attributes->get('media_api_credential');
         $media = $credential->mediaOutlet;
+        $media->loadMissing('channels:id,media_outlet_id,name,type,status');
 
         return response()->json(['data' => [
             'credential' => ['id' => $credential->public_id, 'name' => $credential->name, 'prefix' => $credential->token_prefix, 'scopes' => $credential->scopes, 'expires_at' => $credential->expires_at?->toIso8601String()],
-            'media' => ['id' => $media->public_identifier, 'name' => $media->name, 'status' => $media->status],
+            'media' => [
+                'id' => $media->public_identifier,
+                'name' => $media->name,
+                'status' => $media->status,
+                'channels' => $media->channels->map(fn ($channel): array => [
+                    'id' => $channel->id,
+                    'name' => $channel->name,
+                    'type' => $channel->type,
+                    'status' => $channel->status,
+                ])->values(),
+            ],
             'organization' => ['name' => $media->organization->name],
         ]])->header('X-Records-Returned', '1');
     }

@@ -12,6 +12,7 @@ class ContentChangeResource extends JsonResource
         return [
             'id' => $this->public_id,
             'type' => $this->event_type,
+            'content_uuid' => $this->content_public_id,
             'occurred_at' => $this->occurred_at?->toIso8601String(),
             'content' => [
                 'id' => $this->content_public_id,

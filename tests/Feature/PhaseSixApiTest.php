@@ -24,9 +24,15 @@ class PhaseSixApiTest extends TestCase
 
         $response = $this->withToken($token)->getJson('/api/v1/contents');
 
-        $response->assertOk()->assertJsonPath('data.0.id', $draft->public_id)->assertJsonCount(1, 'data');
+        $requestId = $response->headers->get('X-Request-Id');
+        $response->assertOk()
+            ->assertJsonPath('data.0.uuid', $draft->public_id)
+            ->assertJsonPath('data.0.status', 'AVAILABLE')
+            ->assertJsonPath('data.0.channel_id', $draft->destination->media_channel_id)
+            ->assertJsonCount(1, 'data');
+        $this->assertNotNull($requestId);
         $this->assertDatabaseMissing('api_usage_logs', ['records_returned' => 2]);
-        $this->assertDatabaseHas('api_usage_logs', ['endpoint' => 'api.v1.contents.index', 'status_code' => 200, 'records_returned' => 1]);
+        $this->assertDatabaseHas('api_usage_logs', ['request_id' => $requestId, 'endpoint' => 'api.v1.contents.index', 'status_code' => 200, 'records_returned' => 1]);
         $response = $this->withToken($token)->getJson('/api/v1/contents/'.$otherDraft->public_id);
         $response->assertNotFound();
     }
@@ -51,7 +57,11 @@ class PhaseSixApiTest extends TestCase
 
         $response = $this->withToken($token)->getJson('/api/v1/changes');
 
-        $response->assertOk()->assertJsonPath('data.0.type', 'CONTENT_AVAILABLE')->assertJsonPath('data.1.type', 'CONTENT_SUSPENDED')->assertJsonPath('data.2.type', 'CONTENT_REACTIVATED');
+        $response->assertOk()
+            ->assertJsonPath('data.0.type', 'CONTENT_AVAILABLE')
+            ->assertJsonPath('data.0.content_uuid', $draft->public_id)
+            ->assertJsonPath('data.1.type', 'CONTENT_SUSPENDED')
+            ->assertJsonPath('data.2.type', 'CONTENT_REACTIVATED');
         $this->assertNotNull($response->json('meta.next_cursor'));
         $this->withToken($token)->getJson('/api/v1/changes?cursor='.urlencode($response->json('meta.next_cursor')))->assertOk()->assertJsonCount(0, 'data');
     }

@@ -9,13 +9,16 @@ use Illuminate\Support\Str;
 
 class MediaCredentialService
 {
+    /** @var list<string> */
+    private const ALLOWED_SCOPES = ['content:read', 'content:import', 'requests:write'];
+
     /** @return array{credential: MediaApiCredential, plain_text_token: string} */
     public function create(MediaOutlet $mediaOutlet, User $creator, string $name, array $scopes, ?string $expiresAt = null): array
     {
         $secret = Str::random(64);
         $publicId = 'nria_'.Str::lower(Str::random(16));
         $plainTextToken = $publicId.'.'.$secret;
-        $credential = $mediaOutlet->apiCredentials()->create(['created_by' => $creator->id, 'name' => $name, 'public_id' => $publicId, 'token_hash' => hash('sha256', $plainTextToken), 'token_prefix' => substr($plainTextToken, 0, 20), 'scopes' => array_values(array_intersect($scopes, ['content:read', 'content:import'])), 'expires_at' => $expiresAt]);
+        $credential = $mediaOutlet->apiCredentials()->create(['created_by' => $creator->id, 'name' => $name, 'public_id' => $publicId, 'token_hash' => hash('sha256', $plainTextToken), 'token_prefix' => substr($plainTextToken, 0, 20), 'scopes' => array_values(array_intersect($scopes, self::ALLOWED_SCOPES)), 'expires_at' => $expiresAt]);
 
         return ['credential' => $credential, 'plain_text_token' => $plainTextToken];
     }

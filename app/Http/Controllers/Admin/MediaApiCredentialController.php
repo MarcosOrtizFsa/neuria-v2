@@ -26,7 +26,7 @@ class MediaApiCredentialController extends Controller
     public function store(Request $request, MediaOutlet $mediaOutlet, MediaCredentialService $service, AuditService $audit): Response
     {
         Gate::authorize('manageCredentials', $mediaOutlet);
-        $data = $request->validate(['name' => ['required', 'string', 'max:255'], 'scopes' => ['required', 'array', 'min:1'], 'scopes.*' => [Rule::in(['content:read', 'content:import'])], 'expires_at' => ['nullable', 'date', 'after:now']]);
+        $data = $request->validate(['name' => ['required', 'string', 'max:255'], 'scopes' => ['required', 'array', 'min:1'], 'scopes.*' => [Rule::in(['content:read', 'content:import', 'requests:write'])], 'expires_at' => ['nullable', 'date', 'after:now']]);
         $result = $service->create($mediaOutlet, $request->user(), $data['name'], $data['scopes'], $data['expires_at'] ?? null);
         $audit->record($request, 'GENERAR_CREDENCIAL', 'MEDIOS', $result['credential'], ['public_id' => $result['credential']->public_id]);
 

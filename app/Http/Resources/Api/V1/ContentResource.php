@@ -10,22 +10,18 @@ class ContentResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->public_id,
+            'uuid' => $this->public_id,
             'title' => $this->title,
-            'subtitle' => $this->summary,
             'summary' => $this->summary,
             'body' => $this->body,
             'category' => $this->category,
             'tags' => $this->tags ?? [],
-            'channel' => [
-                'name' => $this->destination->mediaChannel->name,
-                'type' => $this->destination->mediaChannel->type,
-            ],
+            'channel_id' => $this->destination->mediaChannel->id,
             'generated_at' => $this->generated_at?->toIso8601String(),
-            'available_at' => $this->available_at?->toIso8601String(),
-            'status' => $this->status,
+            'available_from' => $this->available_at?->toIso8601String(),
+            'status' => 'AVAILABLE',
             'sources' => $this->research->sources->map(fn ($source): array => [
-                'title' => $source->title,
+                'name' => $source->title,
                 'url' => $source->url,
                 'publisher' => $source->publisher,
                 'consulted_at' => $source->consulted_at?->toIso8601String(),
