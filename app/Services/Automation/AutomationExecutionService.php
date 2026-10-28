@@ -12,6 +12,7 @@ class AutomationExecutionService
     public function __construct(
         private readonly AutomationHandlerRegistry $handlers,
         private readonly AutomationBudgetService $budgets,
+        private readonly AutomationContentPublisher $publisher,
     ) {}
 
     public function execute(int $runId): void
@@ -59,6 +60,9 @@ class AutomationExecutionService
                 }
                 foreach ($result['usage'] as $usage) {
                     $run->usageAttempts()->updateOrCreate(['attempt' => $usage['attempt'], 'operation' => $usage['operation']], $usage);
+                }
+                if ($isValid && ! $isNoNews) {
+                    $this->publisher->publish($saved);
                 }
                 $run->update(['status' => $isNoNews ? 'SIN_NOVEDADES' : ($isValid ? 'COMPLETADA' : 'INVALIDA'), 'provider_response_id' => $result['provider']['response_id'], 'finished_at' => now(), 'sanitized_error' => $isValid ? null : 'La salida no cumplió longitud, fuentes permitidas o campos obligatorios.']);
             });

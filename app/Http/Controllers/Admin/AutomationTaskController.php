@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAutomationTaskRequest;
 use App\Http\Requests\UpdateAutomationTaskRequest;
 use App\Models\AutomationTask;
+use App\Models\MediaChannel;
 use App\Models\Organization;
 use App\Services\AuditService;
 use App\Services\Automation\AutomationWorkflowService;
@@ -39,8 +40,9 @@ class AutomationTaskController extends Controller
     {
         Gate::authorize('create', AutomationTask::class);
         $organizations = $this->organizations($request);
+        $mediaChannels = $this->mediaChannels($request);
 
-        return view('admin.automations.create', compact('organizations'));
+        return view('admin.automations.create', compact('organizations', 'mediaChannels'));
     }
 
     /**
@@ -69,8 +71,9 @@ class AutomationTaskController extends Controller
         $automationTask->load(['organization', 'creator', 'versions' => fn ($query) => $query->latest('version'), 'quotes.rate', 'runs' => fn ($query) => $query->with(['result.sources', 'usageAttempts', 'ledgerEntries'])->latest()->limit(30)]);
         $currentVersion = $automationTask->versions->firstWhere('version', $automationTask->current_version);
         $currentQuote = $automationTask->quotes->where('automation_task_version_id', $currentVersion?->id)->sortByDesc('id')->first();
+        $destinationChannel = MediaChannel::with('mediaOutlet')->find($currentVersion?->configuration['media_channel_id'] ?? null);
 
-        return view('admin.automations.show', compact('automationTask', 'currentVersion', 'currentQuote'));
+        return view('admin.automations.show', compact('automationTask', 'currentVersion', 'currentQuote', 'destinationChannel'));
     }
 
     /**
@@ -81,8 +84,9 @@ class AutomationTaskController extends Controller
         $this->ensureVisible($request, $automationTask);
         Gate::authorize('update', $automationTask);
         $configuration = $automationTask->currentVersion()?->configuration ?? [];
+        $mediaChannels = $this->mediaChannels($request);
 
-        return view('admin.automations.edit', compact('automationTask', 'configuration'));
+        return view('admin.automations.edit', compact('automationTask', 'configuration', 'mediaChannels'));
     }
 
     /**
@@ -117,6 +121,19 @@ class AutomationTaskController extends Controller
     private function organizations(Request $request)
     {
         return Organization::query()->where('is_active', true)->when($request->user()->role?->code === 'CLIENTE', fn ($query) => $query->whereKey($request->user()->organization_id))->orderBy('name')->get(['id', 'name']);
+    }
+
+    private function mediaChannels(Request $request)
+    {
+        return MediaChannel::query()
+            ->with('mediaOutlet:id,organization_id,name,status')
+            ->where('status', 'ACTIVO')
+            ->whereHas('mediaOutlet', function ($query) use ($request): void {
+                $query->where('status', 'ACTIVO')
+                    ->when($request->user()->role?->code === 'CLIENTE', fn ($query) => $query->where('organization_id', $request->user()->organization_id));
+            })
+            ->orderBy('name')
+            ->get();
     }
 
     private function ensureVisible(Request $request, AutomationTask $task): void

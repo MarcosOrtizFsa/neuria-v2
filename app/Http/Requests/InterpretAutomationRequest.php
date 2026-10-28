@@ -24,6 +24,10 @@ class InterpretAutomationRequest extends FormRequest
      */
     public function rules(): array
     {
-        return ['request_text' => ['required', 'string', 'min:20', 'max:10000'], 'organization_id' => [Rule::requiredIf($this->user()?->role?->code !== 'CLIENTE'), 'nullable', 'integer', Rule::exists('organizations', 'id')->where('is_active', true)]];
+        return [
+            'request_text' => ['required', 'string', 'min:20', 'max:10000'],
+            'organization_id' => [Rule::requiredIf($this->user()?->role?->code !== 'CLIENTE'), 'nullable', 'integer', Rule::exists('organizations', 'id')->where('is_active', true)],
+            'media_channel_id' => ['required', 'integer', Rule::exists('media_channels', 'id')->where('status', 'ACTIVO')->whereNull('deleted_at')],
+        ];
     }
 }

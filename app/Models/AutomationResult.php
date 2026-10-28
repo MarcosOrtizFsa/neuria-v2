@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['automation_run_id', 'status', 'title', 'body', 'character_count', 'warnings', 'provider_metadata'])]
+#[Fillable(['automation_run_id', 'generated_draft_id', 'status', 'title', 'body', 'character_count', 'warnings', 'provider_metadata'])]
 class AutomationResult extends Model
 {
     /** @use HasFactory<AutomationResultFactory> */
@@ -23,6 +23,11 @@ class AutomationResult extends Model
     public function run(): BelongsTo
     {
         return $this->belongsTo(AutomationRun::class, 'automation_run_id');
+    }
+
+    public function generatedDraft(): BelongsTo
+    {
+        return $this->belongsTo(GeneratedDraft::class);
     }
 
     public function sources(): HasMany

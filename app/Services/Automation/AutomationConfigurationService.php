@@ -21,6 +21,7 @@ class AutomationConfigurationService
         return [
             'name' => trim($data['name']),
             'type' => 'NEWS_RESEARCH_AND_WRITE',
+            'media_channel_id' => (int) $data['media_channel_id'],
             'topic' => trim($data['topic']),
             'instructions' => trim((string) ($data['instructions'] ?? '')),
             'editorial_approach' => trim((string) ($data['editorial_approach'] ?? '')),

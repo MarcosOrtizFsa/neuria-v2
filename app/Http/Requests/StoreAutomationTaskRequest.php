@@ -26,6 +26,7 @@ class StoreAutomationTaskRequest extends FormRequest
     {
         return [
             'organization_id' => [Rule::requiredIf($this->user()?->role?->code !== 'CLIENTE'), 'nullable', 'integer', Rule::exists('organizations', 'id')->where('is_active', true)],
+            'media_channel_id' => ['required', 'integer', Rule::exists('media_channels', 'id')->where('status', 'ACTIVO')->whereNull('deleted_at')],
             'name' => ['required', 'string', 'max:150'], 'topic' => ['required', 'string', 'max:1000'],
             'instructions' => ['nullable', 'string', 'max:5000'], 'editorial_approach' => ['nullable', 'string', 'max:3000'],
             'language' => ['required', 'string', 'max:20'], 'domains_text' => ['required', 'string', 'max:5000'],

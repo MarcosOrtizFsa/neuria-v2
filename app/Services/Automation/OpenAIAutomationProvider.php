@@ -14,7 +14,7 @@ class OpenAIAutomationProvider implements AutomationProvider
     {
         $response = $this->client->create([
             'model' => config('services.automation.model'),
-            'instructions' => 'Interpretá una automatización solicitada por un cliente de NEURIA. Solo está disponible investigar noticias en dominios concretos y redactar una nota para el panel. No inventes dominios ni actives nada. Si una fuente no está identificada, agregá "domains" a missing_fields. Convertí días a ISO 1=lunes, 7=domingo y usá zona IANA.',
+            'instructions' => 'Interpretá una automatización solicitada por un cliente de NEURIA. Solo está disponible investigar noticias en dominios concretos y redactar una nota para distribuir al canal que el usuario seleccionó en el formulario. No inventes dominios ni actives nada. Si una fuente no está identificada, agregá "domains" a missing_fields. Convertí días a ISO 1=lunes, 7=domingo y usá zona IANA.',
             'input' => $request,
             'max_output_tokens' => 2000,
             'text' => ['format' => ['type' => 'json_schema', 'name' => 'automation_interpretation', 'strict' => true, 'schema' => $this->interpretationSchema()]],
@@ -74,7 +74,7 @@ class OpenAIAutomationProvider implements AutomationProvider
             'language' => ['type' => 'string'], 'domains' => ['type' => 'array', 'items' => ['type' => 'string']],
             'frequency' => ['type' => 'string', 'enum' => ['DAILY', 'SELECTED_DAYS', 'WEEKLY']], 'days' => ['type' => 'array', 'items' => ['type' => 'integer']],
             'time' => ['type' => 'string'], 'timezone' => ['type' => 'string'], 'min_characters' => ['type' => 'integer'], 'max_characters' => ['type' => 'integer'],
-            'destination' => ['type' => 'string', 'enum' => ['NEURIA_PANEL']], 'no_news_policy' => ['type' => 'string', 'enum' => ['NO_CONTENT']],
+            'destination' => ['type' => 'string', 'enum' => ['MEDIA_API']], 'no_news_policy' => ['type' => 'string', 'enum' => ['NO_CONTENT']],
         ], 'required' => ['capability_supported', 'missing_fields', 'name', 'topic', 'instructions', 'editorial_approach', 'language', 'domains', 'frequency', 'days', 'time', 'timezone', 'min_characters', 'max_characters', 'destination', 'no_news_policy'], 'additionalProperties' => false];
     }
 

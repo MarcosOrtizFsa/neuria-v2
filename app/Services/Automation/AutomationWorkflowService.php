@@ -7,6 +7,7 @@ use App\Models\AutomationBudget;
 use App\Models\AutomationQuote;
 use App\Models\AutomationRun;
 use App\Models\AutomationTask;
+use App\Models\MediaChannel;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,7 @@ class AutomationWorkflowService
     {
         return DB::transaction(function () use ($data, $user, $organizationId, $originalRequest): AutomationTask {
             $configuration = $this->configuration->fromValidated($data);
+            $configuration = $this->withDestinationSnapshot($configuration, $organizationId);
             $task = AutomationTask::create([
                 'organization_id' => $organizationId,
                 'created_by' => $user->id,
@@ -54,6 +56,7 @@ class AutomationWorkflowService
                 throw new \DomainException('Una tarea archivada no puede editarse.');
             }
             $configuration = $this->configuration->fromValidated($data);
+            $configuration = $this->withDestinationSnapshot($configuration, $task->organization_id);
             $nextVersion = $task->current_version + 1;
             $version = $task->versions()->create(['created_by' => $user->id, 'version' => $nextVersion, 'configuration' => $configuration, 'configuration_hash' => $this->configuration->hash($configuration), 'change_note' => 'Configuración editada; requiere nueva confirmación.']);
             $task->update(['name' => $configuration['name'], 'current_version' => $nextVersion, 'timezone' => $configuration['timezone'], 'status' => 'PENDIENTE_CONFIRMACION', 'next_run_at' => null, 'confirmed_at' => null, 'paused_at' => null]);
@@ -143,5 +146,32 @@ class AutomationWorkflowService
         $lastCompleted = $task->runs()->whereIn('status', ['COMPLETADA', 'SIN_NOVEDADES'])->latest('window_to')->value('window_to');
 
         return $lastCompleted ? Carbon::parse($lastCompleted)->subMinutes(config('services.automation.overlap_minutes', 15)) : now()->subDay();
+    }
+
+    /** @param array<string, mixed> $configuration */
+    private function withDestinationSnapshot(array $configuration, int $organizationId): array
+    {
+        $channel = MediaChannel::query()
+            ->with('mediaOutlet.editorialProfile.versions')
+            ->whereKey($configuration['media_channel_id'])
+            ->where('status', 'ACTIVO')
+            ->firstOrFail();
+
+        if ($channel->mediaOutlet->organization_id !== $organizationId || $channel->mediaOutlet->status !== 'ACTIVO') {
+            throw new \DomainException('El canal seleccionado no pertenece a la organización o no está activo.');
+        }
+
+        $profile = $channel->mediaOutlet->editorialProfile;
+        $profileVersion = $profile?->versions->firstWhere('version', $profile->current_version);
+        if (! $profileVersion) {
+            throw new \DomainException('El medio seleccionado debe tener una línea editorial versionada antes de usar Piloto Automático.');
+        }
+
+        return [
+            ...$configuration,
+            'media_outlet_id' => $channel->media_outlet_id,
+            'editorial_profile_version_id' => $profileVersion->id,
+            'destination' => 'MEDIA_API',
+        ];
     }
 }

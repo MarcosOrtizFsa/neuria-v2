@@ -30,6 +30,7 @@ class AutomationInterpretationController extends Controller
         $data = $configuration->interpretationToForm($interpretation);
         $data['domains_text'] = implode("\n", $data['domains']);
         $data['organization_id'] = $request->validated('organization_id');
+        $data['media_channel_id'] = $request->validated('media_channel_id');
         $organizationId = $request->user()->role?->code === 'CLIENTE' ? (int) $request->user()->organization_id : (int) $request->validated('organization_id');
         try {
             $task = $workflow->create($data, $request->user(), $organizationId, $request->validated('request_text'));

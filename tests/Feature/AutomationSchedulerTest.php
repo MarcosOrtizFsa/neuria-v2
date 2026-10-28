@@ -7,6 +7,9 @@ use App\Models\AutomationBudget;
 use App\Models\AutomationRate;
 use App\Models\AutomationRun;
 use App\Models\AutomationTask;
+use App\Models\EditorialProfile;
+use App\Models\MediaChannel;
+use App\Models\MediaOutlet;
 use App\Models\Organization;
 use App\Models\Role;
 use App\Models\User;
@@ -92,9 +95,13 @@ class AutomationSchedulerTest extends TestCase
         $role = Role::firstOrCreate(['code' => 'CLIENTE'], ['name' => 'CLIENTE']);
         $organization = Organization::factory()->create(['is_active' => true]);
         $user = User::factory()->for($role)->for($organization)->create();
+        $media = MediaOutlet::factory()->for($organization)->create(['status' => 'ACTIVO']);
+        $channel = MediaChannel::factory()->for($media)->create(['status' => 'ACTIVO']);
+        $profile = EditorialProfile::create(['media_outlet_id' => $media->id, 'name' => 'Perfil', 'language' => 'es-AR', 'identity' => [], 'production' => [], 'sources_config' => [], 'restrictions' => [], 'current_version' => 1]);
+        $profile->versions()->create(['user_id' => $user->id, 'version' => 1, 'configuration' => []]);
         AutomationRate::factory()->create();
         AutomationBudget::factory()->for($organization)->create();
-        $task = app(AutomationWorkflowService::class)->create([...$this->configuration(), 'domains_text' => 'argentina.gob.ar'], $user, $organization->id);
+        $task = app(AutomationWorkflowService::class)->create([...$this->configuration(), 'domains_text' => 'argentina.gob.ar', 'media_channel_id' => $channel->id], $user, $organization->id);
         app(AutomationWorkflowService::class)->activate($task, $task->quotes()->firstOrFail());
 
         return $task->fresh();

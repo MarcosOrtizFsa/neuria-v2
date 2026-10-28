@@ -7,6 +7,9 @@ use App\Jobs\ExecuteAutomationRun;
 use App\Models\AutomationBudget;
 use App\Models\AutomationRate;
 use App\Models\AutomationTask;
+use App\Models\EditorialProfile;
+use App\Models\MediaChannel;
+use App\Models\MediaOutlet;
 use App\Models\Organization;
 use App\Models\Role;
 use App\Models\User;
@@ -21,6 +24,8 @@ use Tests\TestCase;
 class AutomationPilotTest extends TestCase
 {
     use RefreshDatabase;
+
+    private int $mediaChannelId;
 
     public function test_client_creates_a_draft_and_must_confirm_quote_before_activation(): void
     {
@@ -46,7 +51,7 @@ class AutomationPilotTest extends TestCase
         [$owner, $organization] = $this->client();
         [, $otherOrganization] = $this->client();
         $this->commercialSetup($organization);
-        $task = app(AutomationWorkflowService::class)->create($this->formData(), $owner, $organization->id);
+        $task = app(AutomationWorkflowService::class)->create($this->formData($organization), $owner, $organization->id);
         $otherClient = User::where('organization_id', $otherOrganization->id)->firstOrFail();
 
         $this->actingAs($otherClient)->get(route('admin.piloto.show', $task))->assertNotFound();
@@ -101,6 +106,9 @@ class AutomationPilotTest extends TestCase
 
         $this->assertSame('COMPLETADA', $run->fresh()->status);
         $this->assertDatabaseHas('automation_sources', ['url' => 'https://argentina.gob.ar/noticia']);
+        $this->assertDatabaseHas('generated_drafts', ['status' => 'DISPONIBLE', 'title' => 'Nota económica']);
+        $this->assertDatabaseHas('news_requests', ['status' => 'COMPLETADA', 'progress' => 100]);
+        $this->assertNotNull($run->fresh()->result?->generated_draft_id);
         $this->assertDatabaseCount('automation_ledger_entries', 2);
         $this->assertDatabaseHas('automation_ledger_entries', ['automation_run_id' => $run->id, 'type' => 'LIQUIDACION']);
     }
@@ -160,10 +168,10 @@ class AutomationPilotTest extends TestCase
     {
         [$client] = $this->client();
         $provider = \Mockery::mock(AutomationProvider::class);
-        $provider->shouldReceive('interpret')->once()->andReturn([...$this->formData(), 'capability_supported' => true, 'missing_fields' => ['domains'], 'domains' => [], 'destination' => 'NEURIA_PANEL']);
+        $provider->shouldReceive('interpret')->once()->andReturn([...$this->formData(), 'capability_supported' => true, 'missing_fields' => ['domains'], 'domains' => [], 'destination' => 'MEDIA_API']);
         $this->app->instance(AutomationProvider::class, $provider);
 
-        $this->actingAs($client)->post(route('admin.piloto.interpret'), ['request_text' => 'Buscá noticias todos los días en ese medio y redactá una nota.'])->assertSessionHasErrors('request_text');
+        $this->actingAs($client)->post(route('admin.piloto.interpret'), ['request_text' => 'Buscá noticias todos los días en ese medio y redactá una nota.', 'media_channel_id' => $this->mediaChannelId])->assertSessionHasErrors('request_text');
 
         $this->assertDatabaseCount('automation_tasks', 0);
     }
@@ -209,6 +217,7 @@ class AutomationPilotTest extends TestCase
         $role = Role::firstOrCreate(['code' => 'CLIENTE'], ['name' => 'CLIENTE']);
         $organization = Organization::factory()->create(['is_active' => true]);
         $client = User::factory()->for($role)->for($organization)->create(['is_active' => true]);
+        $this->createDestination($organization, $client);
 
         return [$client, $organization];
     }
@@ -227,9 +236,22 @@ class AutomationPilotTest extends TestCase
         return $task->fresh();
     }
 
-    private function formData(): array
+    private function formData(?Organization $organization = null): array
     {
-        return ['name' => 'Economía al mediodía', 'topic' => 'Noticias sobre economía argentina', 'instructions' => 'Priorizar novedades de las últimas horas.', 'editorial_approach' => 'Periodismo especializado y mirada crítica.', 'language' => 'es-AR', 'domains_text' => "argentina.gob.ar\nindec.gob.ar", 'domains' => ['argentina.gob.ar', 'indec.gob.ar'], 'frequency' => 'SELECTED_DAYS', 'days' => [1, 2, 3, 4, 5], 'time' => '12:00', 'timezone' => 'America/Argentina/Buenos_Aires', 'min_characters' => 700, 'max_characters' => 1000, 'no_news_policy' => 'NO_CONTENT'];
+        $channelId = $organization
+            ? MediaChannel::query()->whereHas('mediaOutlet', fn ($query) => $query->where('organization_id', $organization->id))->value('id')
+            : $this->mediaChannelId;
+
+        return ['media_channel_id' => $channelId, 'name' => 'Economía al mediodía', 'topic' => 'Noticias sobre economía argentina', 'instructions' => 'Priorizar novedades de las últimas horas.', 'editorial_approach' => 'Periodismo especializado y mirada crítica.', 'language' => 'es-AR', 'domains_text' => "argentina.gob.ar\nindec.gob.ar", 'domains' => ['argentina.gob.ar', 'indec.gob.ar'], 'frequency' => 'SELECTED_DAYS', 'days' => [1, 2, 3, 4, 5], 'time' => '12:00', 'timezone' => 'America/Argentina/Buenos_Aires', 'min_characters' => 700, 'max_characters' => 1000, 'no_news_policy' => 'NO_CONTENT'];
+    }
+
+    private function createDestination(Organization $organization, User $user): void
+    {
+        $media = MediaOutlet::factory()->for($organization)->create(['status' => 'ACTIVO']);
+        $channel = MediaChannel::factory()->for($media)->create(['status' => 'ACTIVO']);
+        $profile = EditorialProfile::create(['media_outlet_id' => $media->id, 'name' => 'Perfil de prueba', 'language' => 'es-AR', 'identity' => [], 'production' => [], 'sources_config' => [], 'restrictions' => [], 'current_version' => 1]);
+        $profile->versions()->create(['user_id' => $user->id, 'version' => 1, 'configuration' => ['identity' => ['tone' => 'claro']]]);
+        $this->mediaChannelId = $channel->id;
     }
 
     private function fakeProvider(string $status, string $body, string $url = 'https://argentina.gob.ar/noticia'): void
