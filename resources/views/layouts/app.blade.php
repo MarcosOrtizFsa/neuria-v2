@@ -29,6 +29,7 @@
                 <a class="nav-link" href="{{ route('admin.piloto.index') }}">Piloto Automático</a>
             @endcan
             @if(auth()->user()->role?->code === 'CLIENTE' || auth()->user()->hasPermission('API_CONSUMOS.VER'))
+                <a class="nav-link" href="{{ route('admin.solicitudes-consumos.index') }}">Solicitudes y consumos</a>
                 <a class="nav-link" href="{{ route('admin.api-consumos.index') }}">{{ auth()->user()->role?->code === 'CLIENTE' ? 'Actividad API' : 'API y Consumos' }}</a>
             @endif
             @if(auth()->user()->role?->code !== 'CLIENTE')

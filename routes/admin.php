@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AutomationInterpretationController;
 use App\Http\Controllers\Admin\AutomationManualRunController;
 use App\Http\Controllers\Admin\AutomationPauseController;
 use App\Http\Controllers\Admin\AutomationTaskController;
+use App\Http\Controllers\Admin\ClientRequestConsumptionController;
 use App\Http\Controllers\Admin\ContentAvailabilityController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\EditorialProfileController;
@@ -47,6 +48,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::post('contenidos/{content}/reactivar', [ContentAvailabilityController::class, 'reactivate'])->name('contenidos.reactivate');
     Route::post('contenidos/{content}/retirar', [ContentAvailabilityController::class, 'retire'])->name('contenidos.retire');
     Route::get('api-consumos', ApiUsageController::class)->name('api-consumos.index');
+    Route::get('solicitudes-consumos', [ClientRequestConsumptionController::class, 'index'])->name('solicitudes-consumos.index');
+    Route::get('solicitudes-consumos/{referenceCode}', [ClientRequestConsumptionController::class, 'show'])->name('solicitudes-consumos.show');
     Route::resource('piloto', AutomationTaskController::class)->parameters(['piloto' => 'automationTask'])->except('destroy');
     Route::post('piloto-interpretar', AutomationInterpretationController::class)->name('piloto.interpret')->middleware('throttle:automation-interpret');
     Route::post('piloto/{automationTask}/activar', [AutomationActivationController::class, 'store'])->name('piloto.activate');

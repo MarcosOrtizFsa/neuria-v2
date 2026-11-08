@@ -19,6 +19,7 @@ class NewsRequestResource extends JsonResource
 
         return [
             'id' => $this->public_id,
+            'reference' => $this->reference_code,
             'title' => $this->title,
             'status' => $this->status,
             'progress' => $this->progress,

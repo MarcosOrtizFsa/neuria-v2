@@ -33,6 +33,7 @@ class ApiNewsRequestTest extends TestCase
         $newsRequest = NewsRequest::firstOrFail();
         $response->assertAccepted()
             ->assertJsonPath('data.id', $newsRequest->public_id)
+            ->assertJsonPath('data.reference', $newsRequest->reference_code)
             ->assertJsonPath('data.status', 'PENDIENTE')
             ->assertJsonCount(0, 'data.destinations')
             ->assertHeader('Location', route('api.v1.requests.show', $newsRequest->public_id));

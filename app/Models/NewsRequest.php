@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
-#[Fillable(['public_id', 'requested_by', 'api_media_outlet_id', 'api_credential_id', 'api_idempotency_key', 'api_payload_hash', 'title', 'description', 'context', 'specific_instructions', 'category', 'priority', 'event_at', 'web_search_enabled', 'initial_urls', 'research_notes', 'status', 'progress'])]
+#[Fillable(['public_id', 'reference_code', 'requested_by', 'api_media_outlet_id', 'api_credential_id', 'api_idempotency_key', 'api_payload_hash', 'title', 'description', 'context', 'specific_instructions', 'category', 'priority', 'event_at', 'web_search_enabled', 'initial_urls', 'research_notes', 'status', 'progress'])]
 class NewsRequest extends Model
 {
     public const TERMINAL_STATUSES = ['COMPLETADA', 'PARCIALMENTE_COMPLETADA', 'ERROR', 'CANCELADA'];
@@ -24,6 +24,7 @@ class NewsRequest extends Model
     {
         static::creating(function (NewsRequest $newsRequest): void {
             $newsRequest->public_id ??= (string) Str::uuid();
+            $newsRequest->reference_code ??= 'NR-'.Str::upper(substr(hash('sha256', $newsRequest->public_id), 0, 12));
         });
     }
 
@@ -60,6 +61,11 @@ class NewsRequest extends Model
     public function statusHistory(): HasMany
     {
         return $this->hasMany(NewsRequestStatusHistory::class);
+    }
+
+    public function apiUsageLogs(): HasMany
+    {
+        return $this->hasMany(ApiUsageLog::class);
     }
 
     public function drafts(): HasManyThrough
