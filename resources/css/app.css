@@ -9,6 +9,17 @@ body { font-family: 'Instrument Sans', system-ui, sans-serif; background: #f5f7f
 .sidebar .nav-link:hover, .sidebar .nav-link.active { color: white; background: rgba(91,92,240,.35); }
 .metric-card { border: 0; box-shadow: 0 .25rem 1rem rgba(17,24,39,.07); }
 .automation-result-text { white-space: pre-wrap; line-height: 1.7; margin-bottom: 1rem; }
+.client-eyebrow { display: block; margin-bottom: .35rem; color: var(--neuria-primary); font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.client-period-filter { min-width: min(100%, 18rem); border: 0; box-shadow: 0 .25rem 1rem rgba(17,24,39,.06); }
+.client-metric-label { display: block; color: #64748b; font-size: .85rem; }
+.client-metric-value { display: block; margin: .35rem 0; color: var(--neuria-dark); font-size: 2.25rem; line-height: 1; }
+.client-service-card { border: 1px solid #e7eaf2; box-shadow: 0 .35rem 1.25rem rgba(17,24,39,.05); transition: transform .2s ease, box-shadow .2s ease; }
+.client-service-card:hover { transform: translateY(-2px); box-shadow: 0 .75rem 1.5rem rgba(17,24,39,.09); }
+.client-service-icon { display: inline-flex; align-items: center; justify-content: center; width: 2.4rem; height: 2.4rem; border-radius: .75rem; background: rgba(91,92,240,.1); color: var(--neuria-primary); font-weight: 700; }
+.client-consumption-item { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: .15rem .75rem; padding: .85rem 1rem; border: 1px solid #e7eaf2; border-radius: .8rem; background: #fafbff; }
+.client-consumption-item strong { color: var(--neuria-dark); font-size: 1.35rem; }
+.client-consumption-item small { grid-column: 1 / -1; color: #64748b; }
+.client-money-summary dt, .client-money-summary dd { padding-top: .35rem; padding-bottom: .35rem; }
 .form-help-button { display: inline-flex; align-items: center; justify-content: center; width: 1.1rem; height: 1.1rem; margin-left: .25rem; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--neuria-primary); vertical-align: -.15rem; }
 .form-help-button:hover, .form-help-button:focus-visible { color: #4546ce; background: rgba(91, 92, 240, .1); outline: 2px solid rgba(91, 92, 240, .3); outline-offset: 2px; }
 .form-help-button svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }

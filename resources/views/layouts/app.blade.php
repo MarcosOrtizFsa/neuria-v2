@@ -11,7 +11,7 @@
     <aside class="sidebar p-3 text-white">
         <a href="{{ route('panel') }}" class="h3 text-white text-decoration-none">NEURIA</a>
         <nav class="nav flex-column gap-1 mt-4">
-            <a class="nav-link" href="{{ route('panel') }}">Inicio</a>
+            <a class="nav-link" href="{{ route('panel') }}">{{ auth()->user()->role?->code === 'CLIENTE' ? 'Mi centro' : 'Inicio' }}</a>
             @if(auth()->user()->hasPermission('USUARIOS.VER'))
                 <a class="nav-link" href="{{ route('admin.usuarios.index') }}">Usuarios</a>
                 <a class="nav-link" href="{{ route('admin.organizaciones.index') }}">Organizaciones</a>
@@ -29,11 +29,13 @@
                 <a class="nav-link" href="{{ route('admin.piloto.index') }}">Piloto Automático</a>
             @endcan
             @if(auth()->user()->role?->code === 'CLIENTE' || auth()->user()->hasPermission('API_CONSUMOS.VER'))
-                <a class="nav-link" href="{{ route('admin.api-consumos.index') }}">API y Consumos</a>
+                <a class="nav-link" href="{{ route('admin.api-consumos.index') }}">{{ auth()->user()->role?->code === 'CLIENTE' ? 'Actividad API' : 'API y Consumos' }}</a>
             @endif
-            @foreach(['Portal público', 'Configuración'] as $future)
-                <span class="nav-link opacity-50">{{ $future }} <small>(próximamente)</small></span>
-            @endforeach
+            @if(auth()->user()->role?->code !== 'CLIENTE')
+                @foreach(['Portal público', 'Configuración'] as $future)
+                    <span class="nav-link opacity-50">{{ $future }} <small>(próximamente)</small></span>
+                @endforeach
+            @endif
         </nav>
     </aside>
     <main class="flex-grow-1">
