@@ -28,12 +28,14 @@ class LogApiUsage
             }, 0, $startedAt);
             throw $exception;
         }
-        $this->write($request, $response->getStatusCode(), (int) $response->headers->get('X-Records-Returned', 0), $startedAt);
+        $newsRequestId = $response->headers->get('X-Neuria-News-Request-Id');
+        $response->headers->remove('X-Neuria-News-Request-Id');
+        $this->write($request, $response->getStatusCode(), (int) $response->headers->get('X-Records-Returned', 0), $startedAt, $newsRequestId !== null ? (int) $newsRequestId : null);
 
         return $response;
     }
 
-    private function write(Request $request, int $status, int $records, int $startedAt): void
+    private function write(Request $request, int $status, int $records, int $startedAt, ?int $newsRequestId = null): void
     {
         /** @var MediaApiCredential|null $credential */
         $credential = $request->attributes->get('media_api_credential');
@@ -42,6 +44,7 @@ class LogApiUsage
             'request_id' => $request->attributes->get('api_request_id', (string) Str::uuid()),
             'media_outlet_id' => $credential?->media_outlet_id,
             'media_api_credential_id' => $credential?->id,
+            'news_request_id' => $newsRequestId,
             'endpoint' => $request->route()?->getName() ?? $request->path(),
             'method' => $request->method(),
             'status_code' => $status,

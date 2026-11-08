@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Jobs\RunCentralResearch;
+use App\Models\AiUsage;
 use App\Models\EditorialProfile;
 use App\Models\MediaApiCredential;
 use App\Models\MediaChannel;
@@ -21,7 +22,7 @@ class ApiNewsRequestTest extends TestCase
     public function test_credential_with_request_scope_creates_queued_request_for_its_media(): void
     {
         Queue::fake([RunCentralResearch::class]);
-        [$token, $media, $channel] = $this->apiClient(['requests:write']);
+        [$token, $media, $channel, $root] = $this->apiClient(['requests:write']);
 
         $response = $this->withToken($token)->postJson('/api/v1/requests', [
             'title' => 'Inteligencia artificial en educación',
@@ -39,6 +40,11 @@ class ApiNewsRequestTest extends TestCase
         $this->assertSame(['https://8.8.8.8/source'], $newsRequest->initial_urls);
         Queue::assertPushed(RunCentralResearch::class, fn (RunCentralResearch $job): bool => $job->newsRequestId === $newsRequest->id);
         $this->assertDatabaseHas('audit_logs', ['action' => 'CREAR_SOLICITUD_API', 'auditable_id' => $newsRequest->id]);
+        $this->assertDatabaseHas('api_usage_logs', ['news_request_id' => $newsRequest->id, 'endpoint' => 'api.v1.requests.store']);
+
+        AiUsage::create(['news_request_id' => $newsRequest->id, 'openai_response_id' => 'resp_api_tokens', 'model' => 'gpt-test', 'operation' => 'INVESTIGACION', 'input_tokens' => 100, 'output_tokens' => 50, 'total_tokens' => 150]);
+        $this->withToken($token)->getJson('/api/v1/requests/'.$newsRequest->public_id)->assertOk();
+        $this->actingAs($root)->get(route('admin.api-consumos.index'))->assertOk()->assertSee('150');
     }
 
     public function test_credential_without_request_scope_cannot_create_request(): void

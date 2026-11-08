@@ -64,6 +64,7 @@ class NewsRequestController extends Controller
             ->firstOrFail();
 
         return response()->json(['data' => (new NewsRequestResource($newsRequest))->resolve($request)])
+            ->header('X-Neuria-News-Request-Id', (string) $newsRequest->id)
             ->header('X-Records-Returned', '1');
     }
 
@@ -94,6 +95,7 @@ class NewsRequestController extends Controller
 
         return response()->json(['data' => (new NewsRequestResource($newsRequest))->resolve($request)], 202)
             ->header('Location', route('api.v1.requests.show', $newsRequest->public_id))
+            ->header('X-Neuria-News-Request-Id', (string) $newsRequest->id)
             ->header('X-Records-Returned', '1');
     }
 }
