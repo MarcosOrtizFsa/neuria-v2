@@ -12,6 +12,7 @@ use App\Services\Automation\OpenAIAutomationProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -34,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::preventLazyLoading(! $this->app->isProduction());
+        Paginator::useBootstrapFive();
 
         RateLimiter::for('automation-interpret', fn (Request $request): Limit => Limit::perMinute(
             config('services.automation.interpret_rate_limit', 5)

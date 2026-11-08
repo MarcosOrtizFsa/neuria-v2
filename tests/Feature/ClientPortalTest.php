@@ -15,6 +15,7 @@ use App\Models\Organization;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -68,6 +69,16 @@ class ClientPortalTest extends TestCase
         $this->actingAs($client)->get(route('panel'))
             ->assertOk()
             ->assertSee('todavía no tiene una organización asignada');
+    }
+
+    public function test_application_renders_pagination_with_bootstrap_five(): void
+    {
+        $paginator = new LengthAwarePaginator(range(1, 25), 50, 25, 1, ['path' => '/admin/api-consumos']);
+        $html = $paginator->links()->toHtml();
+
+        $this->assertStringContainsString('pagination', $html);
+        $this->assertStringContainsString('page-item', $html);
+        $this->assertStringContainsString('page-link', $html);
     }
 
     /** @return array{User, Organization, MediaOutlet} */
