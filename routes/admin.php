@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\MediaChannelController;
 use App\Http\Controllers\Admin\MediaOutletController;
 use App\Http\Controllers\Admin\NewsRequestController;
 use App\Http\Controllers\Admin\OrganizationController;
+use App\Http\Controllers\Admin\OrganizationPlanController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,8 @@ Route::put('/perfil', [ProfileController::class, 'update'])->name('profile.updat
 Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::resource('usuarios', UserController::class)->parameters(['usuarios' => 'user'])->middleware('permission:USUARIOS.VER');
     Route::resource('organizaciones', OrganizationController::class)->parameters(['organizaciones' => 'organization'])->middleware('permission:USUARIOS.VER');
+    Route::get('organizaciones/{organization}/plan', [OrganizationPlanController::class, 'edit'])->name('organizaciones.plan.edit');
+    Route::put('organizaciones/{organization}/plan', [OrganizationPlanController::class, 'update'])->name('organizaciones.plan.update');
     Route::resource('medios', MediaOutletController::class)->parameters(['medios' => 'mediaOutlet']);
     Route::resource('medios.canales', MediaChannelController::class)->parameters(['medios' => 'mediaOutlet', 'canales' => 'mediaChannel']);
     Route::get('medios/{mediaOutlet}/credenciales/create', [MediaApiCredentialController::class, 'create'])->name('medios.credenciales.create');
