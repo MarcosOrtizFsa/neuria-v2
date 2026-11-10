@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ClientRequestConsumptionController;
 use App\Http\Controllers\Admin\ContentAvailabilityController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\EditorialProfileController;
+use App\Http\Controllers\Admin\EditorialProfileReportController;
 use App\Http\Controllers\Admin\EditorialSourceController;
 use App\Http\Controllers\Admin\MediaApiCredentialController;
 use App\Http\Controllers\Admin\MediaChannelController;
@@ -35,6 +36,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::post('medios/{mediaOutlet}/credenciales', [MediaApiCredentialController::class, 'store'])->name('medios.credenciales.store');
     Route::delete('medios/{mediaOutlet}/credenciales/{credential}', [MediaApiCredentialController::class, 'destroy'])->name('medios.credenciales.destroy');
     Route::get('medios/{mediaOutlet}/linea-editorial', [EditorialProfileController::class, 'edit'])->name('medios.editorial.edit');
+    Route::get('medios/{mediaOutlet}/linea-editorial/informe', EditorialProfileReportController::class)->name('medios.editorial.report');
     Route::put('medios/{mediaOutlet}/linea-editorial', [EditorialProfileController::class, 'update'])->name('medios.editorial.update');
     Route::get('medios/{mediaOutlet}/linea-editorial/historial', [EditorialProfileController::class, 'history'])->name('medios.editorial.history');
     Route::post('medios/{mediaOutlet}/linea-editorial/{profile}/restaurar/{version}', [EditorialProfileController::class, 'restore'])->name('medios.editorial.restore');

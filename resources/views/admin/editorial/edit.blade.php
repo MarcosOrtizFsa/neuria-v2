@@ -24,7 +24,12 @@
 @endphp
 
 <x-layouts.app title="Línea editorial">
-    <h1 class="h3">Línea editorial de {{ $mediaOutlet->name }}</h1>
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+        <h1 class="h3">Línea editorial de {{ $mediaOutlet->name }}</h1>
+        @if($profile->exists)
+            <a class="btn btn-outline-primary" href="{{ route('admin.medios.editorial.report', $mediaOutlet) }}">Descargar informe Word</a>
+        @endif
+    </div>
     <p class="text-secondary">Estas preferencias adaptan la redacción, pero nunca reemplazan las reglas de veracidad y seguridad de NEURIA.</p>
     @if($errors->any())<div class="alert alert-danger">{{ $errors->first() }}</div>@endif
     <form method="POST" action="{{ route('admin.medios.editorial.update', $mediaOutlet) }}">
